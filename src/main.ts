@@ -25,7 +25,7 @@ import type { SRDMonster } from "./types/creatures";
 import InitiativeTrackerSettings from "./settings/settings";
 import { EncounterBlock, EncounterParser } from "./encounter";
 import EncounterLine from "./encounter/ui/EncounterLine.svelte";
-import { Creature, getId } from "./utils/creature";
+import { Participant, getId } from "./utils/creature";
 import TrackerView, { CreatureView } from "./tracker/view";
 import BuilderView from "./builder/view";
 import PlayerView from "./tracker/player-view";
@@ -40,7 +40,7 @@ export default class InitiativeTracker extends Plugin {
     api = new API(this);
     public data: InitiativeTrackerData;
     public tracker = tracker;
-    playerCreatures: Map<string, Creature> = new Map();
+    playerCreatures: Map<string, Participant> = new Map();
     watchers: Map<TFile, HomebrewCreature> = new Map();
     getRoller(str: string) {
         if (!this.canUseDiceRoller) return;
@@ -83,8 +83,8 @@ export default class InitiativeTracker extends Plugin {
     }
 
     getPlayerByName(name: string) {
-        if (!this.players.has(name)) return new Creature({ name });
-        return Creature.from(this.players.get(name));
+        if (!this.players.has(name)) return new Participant({ name });
+        return Participant.from(this.players.get(name));
     }
     getPlayerNamesForParty(party: string): string[] {
         return this.data.parties?.find((p) => p.name === party)?.players ?? [];
@@ -194,23 +194,23 @@ export default class InitiativeTracker extends Plugin {
     }
     getCreatureFromBestiary(name: string) {
         let creature = this.getBaseCreatureFromBestiary(name);
-        if (creature) return Creature.from(creature);
+        if (creature) return Participant.from(creature);
     }
     getCreatureFromBestiaryByDefinition(
         creature: SRDMonster | HomebrewCreature
-    ): Creature {
+    ): Participant {
         if (creature.player && this.playerCreatures.has(creature.name)) {
             return this.playerCreatures.get(creature.name);
         }
         return (
             this.getCreatureFromBestiary(creature.name) ??
-            Creature.from(creature)
+            Participant.from(creature)
         );
     }
     get statblock_players() {
         return this.statblock_creatures
             .filter((p) => p.player)
-            .map((p) => [p.name, Creature.from(p)] as [string, Creature]);
+            .map((p) => [p.name, Participant.from(p)] as [string, Participant]);
     }
     get players() {
         return new Map([
@@ -386,7 +386,7 @@ export default class InitiativeTracker extends Plugin {
         });
 
         this.playerCreatures = new Map(
-            this.data.players.map((p) => [p.name, Creature.from(p)])
+            this.data.players.map((p) => [p.name, Participant.from(p)])
         );
 
         this.app.workspace.onLayoutReady(async () => {
@@ -431,7 +431,7 @@ export default class InitiativeTracker extends Plugin {
 
                         this.playerCreatures.set(
                             player.name,
-                            Creature.from(player)
+                            Participant.from(player)
                         );
                         if (this.view) {
                             const creature = tracker
@@ -576,7 +576,7 @@ export default class InitiativeTracker extends Plugin {
                 async (homebrews: HomebrewCreature[]) => {
                     try {
                         const creatures = homebrews.map((h) =>
-                            Creature.from(h).toJSON()
+                            Participant.from(h).toJSON()
                         );
 
                         const view = this.view;
@@ -670,13 +670,13 @@ export default class InitiativeTracker extends Plugin {
 
     async savePlayer(player: HomebrewCreature) {
         this.data.players.push(player);
-        this.playerCreatures.set(player.name, Creature.from(player));
+        this.playerCreatures.set(player.name, Participant.from(player));
         await this.saveSettings();
     }
     async savePlayers(...players: HomebrewCreature[]) {
         for (let monster of players) {
             this.data.players.push(monster);
-            this.playerCreatures.set(monster.name, Creature.from(monster));
+            this.playerCreatures.set(monster.name, Participant.from(monster));
         }
         await this.saveSettings();
     }
@@ -714,7 +714,7 @@ export default class InitiativeTracker extends Plugin {
         await this.saveData(this.data);
         tracker.setData(this.data);
     }
-    async openCombatant(creature: Creature) {
+    async openCombatant(creature: Participant) {
         if (!this.canUseStatBlocks) return;
         const view = this.combatant;
         if (!view) {

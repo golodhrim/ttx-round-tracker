@@ -10,14 +10,14 @@
 
     import { DICE } from "src/utils";
     import { SRDMonsterSuggestionModal } from "src/utils/suggester";
-    import { Creature } from "src/utils/creature";
+    import { Participant } from "src/utils/creature";
     import type InitiativeTracker from "src/main";
 
     import { tracker } from "src/tracker/stores/tracker";
 
     const dispatch = createEventDispatcher();
 
-    export let creature: Creature = new Creature({});
+    export let creature: Participant = new Participant({});
     export let amount = 1;
     export let plugin: InitiativeTracker;
 
@@ -41,15 +41,15 @@
         tracker.add(
             plugin,
             plugin.data.rollHP,
-            ...[...Array(amount).keys()].map((k) => Creature.new(creature))
+            ...[...Array(amount).keys()].map((k) => Participant.new(creature))
         );
-        creature = new Creature({});
+        creature = new Participant({});
         if (close) dispatch("close");
     };
 
     const addButton = (node: HTMLElement) => {
         new ExtraButtonComponent(node)
-            .setTooltip("Add Creature")
+            .setTooltip("Add Participant")
             .setIcon("check");
     };
     const editButton = (node: HTMLElement) => {
@@ -76,7 +76,7 @@
         modal = new SRDMonsterSuggestionModal(plugin, nameInput);
         modal.onClose = async () => {
             if (modal.creature) {
-                creature = Creature.from(modal.creature);
+                creature = Participant.from(modal.creature);
 
                 creature.initiative = await plugin.getInitiativeValue(
                     creature.modifier
@@ -95,7 +95,7 @@
 <div class="initiative-tracker-editor">
     <div class="create-new">
         <div>
-            <label for="add-name">Creature</label>
+            <label for="add-name">Participant</label>
             <input
                 bind:this={nameInput}
                 bind:value={creature.name}

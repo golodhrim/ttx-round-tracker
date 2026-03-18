@@ -5,7 +5,7 @@
     import { encounter } from "../../stores/encounter";
     import Nullable from "../Nullable.svelte";
     import { getContext } from "svelte";
-    import { Creature as CreatureCreator } from "src/utils/creature";
+    import { Participant as ParticipantCreator } from "src/utils/creature";
 
     const { players } = encounter;
     const { average } = players;
@@ -52,7 +52,7 @@
     const skull = (node: HTMLElement) => setIcon(node, "skull");
 
     const open = () => {
-        plugin.openCombatant(CreatureCreator.from(creature));
+        plugin.openCombatant(ParticipantCreator.from(creature));
     };
 </script>
 

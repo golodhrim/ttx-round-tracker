@@ -1,9 +1,9 @@
 import { App, ButtonComponent, Modal } from "obsidian";
 import type InitiativeTracker from "src/main";
-import type { Creature } from "src/utils/creature";
+import type { Participant } from "src/utils/creature";
 import Creator from "./Creator.svelte";
 export class AddCreatureModal extends Modal {
-    constructor(public plugin: InitiativeTracker, public creature?: Creature) {
+    constructor(public plugin: InitiativeTracker, public creature?: Participant) {
         super(plugin.app);
     }
     onOpen() {

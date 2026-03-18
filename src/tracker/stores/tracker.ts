@@ -1,4 +1,4 @@
-import { Creature, getId } from "src/utils/creature";
+import { Participant, getId } from "src/utils/creature";
 import type InitiativeTracker from "../../main";
 import {
     derived,
@@ -48,11 +48,11 @@ type CreatureUpdate = {
     set_hp?: number;
     set_max_hp?: number;
 };
-type CreatureUpdates = { creature: Creature; change: CreatureUpdate };
+type CreatureUpdates = { creature: Participant; change: CreatureUpdate };
 const modifier = Platform.isMacOS ? "Meta" : "Control";
 function createTracker() {
-    const creatures = writable<Creature[]>([]);
-    const updating = writable<Map<Creature, HPUpdate>>(new Map());
+    const creatures = writable<Participant[]>([]);
+    const updating = writable<Map<Participant, HPUpdate>>(new Map());
     const updateTarget = writable<"ac" | "hp">();
     const { subscribe, set, update } = creatures;
 
@@ -114,7 +114,7 @@ function createTracker() {
         return values;
     });
 
-    let current_order: Creature[] = [];
+    let current_order: Participant[] = [];
     const ordered = derived([condensed, data], ([values, data]) => {
         const sort = [...values];
         sort.sort((a, b) => {
@@ -157,14 +157,14 @@ function createTracker() {
         return sort;
     });
 
-    const logNewInitiative = (creature: Creature) => {
+    const logNewInitiative = (creature: Participant) => {
         _logger?.log(
             `${creature.getName()} initiative changed to ${creature.initiative}`
         );
     };
 
     const performCreatureUpdate = (
-        creatures: Creature[],
+        creatures: Participant[],
         ...updates: CreatureUpdates[]
     ) => {
         for (const { creature, change } of updates) {
@@ -312,12 +312,12 @@ function createTracker() {
         );
     };
 
-    function updateAndSave(updater: Updater<Creature[]>): void {
+    function updateAndSave(updater: Updater<Participant[]>): void {
         update(updater);
         trySave();
     }
 
-    const setNumbers = (list: Creature[]) => {
+    const setNumbers = (list: Participant[]) => {
         for (let i = 0; i < list.length; i++) {
             const creature = list[i];
             if (
@@ -341,8 +341,8 @@ function createTracker() {
 
     function rollIntiative(
         plugin: InitiativeTracker,
-        creatures: Creature[]
-    ): Creature[] {
+                creatures: Participant[]
+    ): Participant[] {
         for (let creature of creatures) {
             if (creature.static && creature.initiative) continue;
             creature.active = false;
@@ -478,7 +478,7 @@ function createTracker() {
             creatures.filter((c) => c.player)
         ),
 
-        setUpdate: (creature: Creature, evt: MouseEvent) =>
+        setUpdate: (creature: Participant, evt: MouseEvent) =>
             updating.update((creatures) => {
                 if (creatures.has(creature)) {
                     creatures.delete(creature);
@@ -705,7 +705,7 @@ function createTracker() {
         add: async (
             plugin: InitiativeTracker,
             roll: boolean = plugin.data.rollHP,
-            ...items: Creature[]
+            ...items: Participant[]
         ) =>
             updateAndSave((creatures) => {
                 if (plugin.canUseDiceRoller && roll) {
@@ -713,7 +713,7 @@ function createTracker() {
                 }
 
                 creatures.push(...items);
-                const toRoll: Creature[] = [];
+                const toRoll: Participant[] = [];
                 if (!_settings.condense) {
                     toRoll.push(...items);
                 } else {
@@ -736,7 +736,7 @@ function createTracker() {
                 setNumbers(creatures);
                 return creatures;
             }),
-        remove: (...items: Creature[]) =>
+        remove: (...items: Participant[]) =>
             updateAndSave((creatures) => {
                 creatures = creatures.filter((m) => !items.includes(m));
 
@@ -746,7 +746,7 @@ function createTracker() {
                 );
                 return creatures;
             }),
-        replace: (old: Creature, replacer: Creature) => {
+        replace: (old: Participant, replacer: Participant) => {
             updateAndSave((creatures) => {
                 creatures.splice(creatures.indexOf(old), 1, replacer);
                 setNumbers(creatures);
@@ -775,7 +775,7 @@ function createTracker() {
                     /**
                      * Encounter is being started. Keep any pre-existing players that are incoming.
                      */
-                    const tempCreatureArray: Creature[] = [];
+                    const tempCreatureArray: Participant[] = [];
 
                     const party = get($party);
                     const players = new Map(
@@ -786,7 +786,7 @@ function createTracker() {
                     ).values();
                     for (const creature of state.creatures) {
                         /* const ; */
-                        let existingPlayer: Creature | null = null;
+                        let existingPlayer: Participant | null = null;
                         if (
                             creature.player &&
                             (existingPlayer = creatures.find(
@@ -797,7 +797,7 @@ function createTracker() {
                             tempCreatureArray.push(existingPlayer);
                         } else {
                             tempCreatureArray.push(
-                                Creature.fromJSON(creature, plugin)
+                                Participant.fromJSON(creature, plugin)
                             );
                         }
                     }
@@ -918,7 +918,7 @@ function createTracker() {
         difficulty: (plugin: InitiativeTracker) =>
             derived([creatures, data], ([values]) => {
                 const players: number[] = [];
-                const creatureMap = new Map<Creature, number>();
+                const creatureMap = new Map<Participant, number>();
                 const rpgSystem = getRpgSystem(plugin);
 
                 for (const creature of values) {
@@ -961,7 +961,7 @@ function createTracker() {
 export const tracker = createTracker();
 
 function setCreatureHP(
-    creatures: Creature[],
+    creatures: Participant[],
     plugin: InitiativeTracker,
     rollHP = false
 ) {
@@ -1005,7 +1005,7 @@ class Tracker {
     }
 
     /** All creatures in the encounter. Includes players. */
-    #creatures = writable<Creature[]>([]);
+    #creatures = writable<Participant[]>([]);
     /** All creatures, ordered by initiative. */
     ordered = derived(this.#creatures, (values) => {
         const sort = [...values];
@@ -1018,7 +1018,7 @@ class Tracker {
         return sort;
     });
     /** Static, non-store list. Populated during the order store update. */
-    #current_order: Creature[] = [];
+    #current_order: Participant[] = [];
     /** Just players. */
     #players = derived(this.#creatures, (creatures) =>
         creatures.filter((c) => c.player)
@@ -1085,7 +1085,7 @@ class Tracker {
     subscribe = this.#creatures.subscribe;
     set = this.#creatures.set;
     update = this.#creatures.update;
-    #updateAndSave(updater: Updater<Creature[]>) {
+    #updateAndSave(updater: Updater<Participant[]>) {
         this.update(updater);
         app.workspace.trigger(
             "initiative-tracker:save-state",
@@ -1094,8 +1094,8 @@ class Tracker {
     }
 
     new(state: InitiativeViewState) {}
-    add(roll: boolean = this.#data.rollHP, ...items: Creature[]) {}
-    remove(...items: Creature[]) {}
+    add(roll: boolean = this.#data.rollHP, ...items: Participant[]) {}
+    remove(...items: Participant[]) {}
 
     /**
      * Logging
@@ -1107,8 +1107,8 @@ class Tracker {
         }
     }
 
-    /** Creature updates */
-    updating = writable<Map<Creature, HPUpdate>>(new Map());
+    /** Participant updates */
+    updating = writable<Map<Participant, HPUpdate>>(new Map());
     updateTarget = writable<"ac" | "hp">();
     updateCreatures(...updates: CreatureUpdates[]) {
         this.#updateAndSave((creatures) => {
@@ -1116,7 +1116,7 @@ class Tracker {
         });
     }
     performCreatureUpdate(
-        creatures: Creature[],
+        creatures: Participant[],
         ...updates: CreatureUpdates[]
     ) {
         for (const { creature, change } of updates) {
@@ -1248,7 +1248,7 @@ class Tracker {
         }
         return creatures;
     }
-    setUpdate(creature: Creature, evt: MouseEvent) {
+    setUpdate(creature: Participant, evt: MouseEvent) {
         this.updating.update((creatures) => {
             if (creatures.has(creature)) {
                 creatures.delete(creature);

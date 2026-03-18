@@ -9,7 +9,7 @@ import {
 import { RpgSystem } from "./rpgSystem";
 import { Dnd5eRpgSystem } from "./dnd5e";
 
-export class Dnd5eLazyGmRpgSystem extends RpgSystem {
+export class Dnd5eLazySgmRpgSystem extends RpgSystem {
     plugin: InitiativeTracker;
     dnd5eRpgSystem: Dnd5eRpgSystem;
 
@@ -22,7 +22,7 @@ export class Dnd5eLazyGmRpgSystem extends RpgSystem {
         super();
         this.plugin = plugin;
         this.valueUnit = "CR";
-        this.displayName = "DnD 5e Lazy GM";
+        this.displayName = "DnD 5e Lazy SGM";
         this.dnd5eRpgSystem = new Dnd5eRpgSystem(plugin);
     }
 

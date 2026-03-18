@@ -15,7 +15,7 @@
 
     import { AddCreatureModal } from "./create/modal";
     import Legacy from "./create/Legacy.svelte";
-    import type { Creature } from "src/utils/creature";
+    import type { Participant } from "src/utils/creature";
     import Difficulty from "./Difficulty.svelte";
 
     export let plugin: InitiativeTracker;
@@ -39,7 +39,7 @@
 
     let saving = false;
     let loading = false;
-    const editOrAdd = (creature?: Creature) => {
+    const editOrAdd = (creature?: Participant) => {
         const modal = new AddCreatureModal(plugin, creature);
         modal.onClose = () => {};
         modal.open();

@@ -14,7 +14,7 @@ export function getId() {
     });
 }
 
-export class Creature {
+export class Participant {
     active: boolean;
     name: string;
     modifier: number | number[];
@@ -72,7 +72,7 @@ export class Creature {
         this.display = creature.display;
         this.initiative =
             "initiative" in creature
-                ? (creature as Creature).initiative
+                ? (creature as Participant).initiative
                 : Number(initiative ?? 0);
         this.static = creature.static ?? false;
         this.setModifier(creature.modifier);
@@ -165,13 +165,13 @@ export class Creature {
         yield this.rollHP;
     }
 
-    static new(creature: Creature) {
-        return new Creature(
+    static new(participant: Participant) {
+        return new Participant(
             {
-                ...creature,
+                ...participant,
                 id: getId()
             },
-            creature.initiative
+            participant.initiative
         );
     }
 
@@ -186,7 +186,7 @@ export class Creature {
                           10) /
                           2
                   );
-        return new Creature({
+        return new Participant({
             ...creature,
             modifier: modifier
         });
@@ -248,21 +248,21 @@ export class Creature {
     }
 
     static fromJSON(state: CreatureState, plugin: InitiativeTracker) {
-        let creature: Creature;
+        let participant: Participant;
         if (state.player) {
-            creature =
+            participant =
                 plugin.getPlayerByName(state.name) ??
-                new Creature(state, state.initiative);
-            creature.initiative = state.initiative;
+                new Participant(state, state.initiative);
+            participant.initiative = state.initiative;
         } else {
-            creature = new Creature(state, state.initiative);
+            participant = new Participant(state, state.initiative);
         }
-        creature.enabled = state.enabled;
+        participant.enabled = state.enabled;
 
-        creature.temp = state.tempHP ? state.tempHP : 0;
-        creature.current_max = state.currentMaxHP;
-        creature.hp = state.currentHP;
-        creature.current_ac = state.currentAC;
+        participant.temp = state.tempHP ? state.tempHP : 0;
+        participant.current_max = state.currentMaxHP;
+        participant.hp = state.currentHP;
+        participant.current_ac = state.currentAC;
         let statuses: Condition[] = [];
         for (const status of state.status) {
             const existing = Conditions.find(({ name }) => status == name);
@@ -276,8 +276,9 @@ export class Creature {
                 });
             }
         }
-        creature.status = new Set(statuses);
-        creature.active = state.active;
-        return creature;
+        participant.status = new Set(statuses);
+        participant.active = state.active;
+        return participant;
     }
 }
+

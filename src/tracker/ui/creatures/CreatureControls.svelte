@@ -8,7 +8,7 @@
         REMOVE,
         TAG
     } from "src/utils";
-    import type { Creature } from "src/utils/creature";
+    import type { Participant } from "src/utils/creature";
     import type TrackerView from "src/tracker/view";
     import { createEventDispatcher, getContext } from "svelte";
     import type InitiativeTracker from "src/main";
@@ -16,7 +16,7 @@
 
     const dispatch = createEventDispatcher();
 
-    export let creature: Creature;
+    export let creature: Participant;
 
     const plugin = getContext<InitiativeTracker>("plugin");
 

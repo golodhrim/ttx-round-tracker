@@ -9,14 +9,14 @@
         INITIATIVE,
         RANDOM_HP
     } from "src/utils";
-    import type { Creature } from "src/utils/creature";
+    import type { Participant } from "src/utils/creature";
     import type { Writable } from "svelte/store";
 
-    export let adding: Writable<Array<[Creature, number]>>;
-    export let editing: Writable<Creature>;
+    export let adding: Writable<Array<[Participant, number]>>;
+    export let editing: Writable<Participant>;
     export let rollHP: boolean;
 
-    const minusIcon = (node: HTMLElement, creature: Creature) => {
+    const minusIcon = (node: HTMLElement, creature: Participant) => {
         new ExtraButtonComponent(node).setIcon("minus");
     };
     const minus = (evt: MouseEvent, index: number) => {
@@ -27,14 +27,14 @@
         $adding[index][1] -= 1;
         $adding = $adding;
     };
-    const plusIcon = (node: HTMLElement, creature: Creature) => {
+    const plusIcon = (node: HTMLElement, creature: Participant) => {
         new ExtraButtonComponent(node).setIcon("plus");
     };
     const add = (evt: MouseEvent, index: number) => {
         $adding[index][1] += 1;
         $adding = $adding;
     };
-    const delIcon = (node: HTMLElement, creature: Creature) => {
+    const delIcon = (node: HTMLElement, creature: Participant) => {
         new ExtraButtonComponent(node).setIcon("trash");
     };
     const del = (evt: MouseEvent, index: number) => {

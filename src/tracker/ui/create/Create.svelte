@@ -9,17 +9,17 @@
     import { onMount } from "svelte";
 
     import { DICE } from "src/utils";
-    import { Creature } from "src/utils/creature";
+    import { Participant } from "src/utils/creature";
     import type InitiativeTracker from "src/main";
     import type { Writable } from "svelte/store";
     import { equivalent } from "src/encounter";
     import { confirmWithModal } from "./modal";
 
-    let creature: Creature = new Creature({});
+    let creature: Participant = new Participant({});
     export let amount = 1;
     export let plugin: InitiativeTracker;
-    export let adding: Writable<Array<[Creature, number]>>;
-    export let editing: Writable<Creature>;
+    export let adding: Writable<Array<[Participant, number]>>;
+    export let editing: Writable<Participant>;
     export let isEditing: boolean;
 
     editing.subscribe((c) => {
@@ -51,7 +51,7 @@
                 else { $adding.push([creature, 1]); }
                 $adding = $adding;
                 $editing = null;
-                creature = new Creature({});
+                creature = new Participant({});
             });
     };
 
@@ -75,13 +75,13 @@
                 }
                 $adding = $adding;
                 $editing = null;
-                creature = new Creature({});
+                creature = new Participant({});
             });
     };
 
     const cancelButton = (node: HTMLElement) => {
         new ExtraButtonComponent(node).setTooltip("Cancel").setIcon("reset")
-            .onClick(() => { creature = new Creature({}); });
+            .onClick(() => { creature = new Participant({}); });
     };
 
     const diceButton = (node: HTMLElement) => {

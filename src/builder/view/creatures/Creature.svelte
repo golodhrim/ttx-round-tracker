@@ -5,7 +5,7 @@
     import { encounter } from "../../stores/encounter";
     import Nullable from "../Nullable.svelte";
     import { convertFraction, DEFAULT_UNDEFINED } from "src/utils";
-    import { Creature as CreatureCreator } from "src/utils/creature";
+    import { Participant as ParticipantCreator } from "src/utils/creature";
     import type { createTable } from "src/builder/stores/table/table";
     import type InitiativeTracker from "src/main";
 
@@ -81,7 +81,7 @@
             <div
                 class="setting-item-name creature-name"
                 on:click={(evt) =>
-                    plugin.openCombatant(CreatureCreator.from(creature))}
+                    plugin.openCombatant(ParticipantCreator.from(creature))}
             >
                 {creature.name}
                 {#if insignificant}

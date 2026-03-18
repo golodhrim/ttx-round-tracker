@@ -3,8 +3,8 @@
 
     import CreatureTemplate from "./Creature.svelte";
 
-    import { AC, DICE, HP, META_MODIFIER } from "src/utils";
-    import { Creature, getId } from "src/utils/creature";
+    import { AC, DICE, META_MODIFIER } from "src/utils";
+    import { Participant, getId } from "src/utils/creature";
     import { createEventDispatcher } from "svelte";
     import { dndzone } from "svelte-dnd-action";
     import { flip } from "svelte/animate";
@@ -17,25 +17,22 @@
     const { state, ordered } = tracker;
 
     $: items = [...$ordered].map((c) => {
-        return { creature: c, id: getId() };
+        return { participant: c, id: getId() };
     });
 
     const dispatch = createEventDispatcher();
 
-    const hpIcon = (node: HTMLElement) => {
-        setIcon(node, HP);
-    };
     const acIcon = (node: HTMLElement) => {
         setIcon(node, AC);
     };
     const flipDurationMs = 300;
     function handleDndConsider(
-        e: CustomEvent<GenericDndEvent<{ creature: Creature; id: string }[]>>
+        e: CustomEvent<GenericDndEvent<{ participant: Participant; id: string }[]>>
     ) {
         items = e.detail.items;
     }
     function handleDndFinalize(
-        e: CustomEvent<GenericDndEvent<{ creature: Creature; id: string }[]>>
+        e: CustomEvent<GenericDndEvent<{ participant: Participant; id: string }[]>>
     ) {
         if (e.detail.items.length > 1) {
             let dropped = e.detail.items.find(
@@ -45,18 +42,18 @@
                 (c) => c.id == e.detail.info.id
             );
             if (index == e.detail.items.length - 1) {
-                dropped.creature.initiative =
-                    e.detail.items[index - 1].creature.initiative;
+                dropped.participant.initiative =
+                    e.detail.items[index - 1].participant.initiative;
             } else {
-                dropped.creature.initiative =
-                    e.detail.items[index + 1].creature.initiative;
+                dropped.participant.initiative =
+                    e.detail.items[index + 1].participant.initiative;
             }
-            tracker.logNewInitiative(dropped.creature);
+            tracker.logNewInitiative(dropped.participant);
         }
         items = e.detail.items;
-        $tracker = [...items.map(({ creature }, i) => {
-            creature.manualOrder = i;
-            return creature;
+        $tracker = [...items.map(({ participant }, i) => {
+            participant.manualOrder = i;
+            return participant;
         })];
     }
 
@@ -74,9 +71,8 @@
                 aria-label="Re-Roll Initiatives"
                 on:click={(evt) => tracker.roll(plugin)}
             />
-            <th class="left" style="width:55%">Name</th>
-            <th style="width:15%" use:hpIcon class="center" />
-            <th style="width:15%" use:acIcon class="center" />
+            <th class="left" style="width:70%">Name</th>
+            <th style="width:15%" use:acIcon class="center" aria-label="Role Modifier" />
             <th style="width:5%" />
         </thead>
         <tbody
@@ -89,26 +85,21 @@
             on:consider={handleDndConsider}
             on:finalize={handleDndFinalize}
         >
-            {#each items as { creature, id } (id)}
+            {#each items as { participant, id } (id)}
                 <tr
                     class="draggable initiative-tracker-creature"
-                    class:disabled={!creature.enabled}
-                    class:active={$state && creature.active}
-                    class:viewing={creature.viewing}
-                    class:friendly={creature.friendly}
+                    class:disabled={!participant.enabled}
+                    class:active={$state && participant.active}
+                    class:viewing={participant.viewing}
+                    class:friendly={participant.friendly}
                     animate:flip={{ duration: flipDurationMs }}
-                    data-hp={creature.hp}
-                    data-hp-max={creature.current_max}
-                    data-hp-percent={Math.round(
-                        ((creature.hp ?? 0) / creature.max) * 100
-                    )}
                     on:click={(e) => {
-                        dispatch("open-combatant", creature);
+                        dispatch("open-combatant", participant);
                         e.stopPropagation();
                     }}
                 >
                     <CreatureTemplate
-                        {creature}
+                        creature={participant}
                         on:hp
                         on:tag
                         on:edit
@@ -119,8 +110,8 @@
         </tbody>
     {:else}
         <div class="no-creatures">
-            <p>Add a creature to get started!</p>
-            <small>Players may be created in settings.</small>
+            <p>Add a participant to get started!</p>
+            <small>Participants may be created in settings.</small>
         </div>
     {/if}
 </table>

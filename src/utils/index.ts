@@ -1,6 +1,6 @@
 import type InitiativeTracker from "src/main";
 import type { SRDMonster } from "src/types/creatures";
-import type { Creature } from "./creature";
+import type { Participant } from "./creature";
 import { DECIMAL_TO_VULGAR_FRACTION } from "./constants";
 import { setIcon } from "obsidian";
 
@@ -41,8 +41,8 @@ export function crToString(cr: string | number): string {
 
 export function getFromCreatureOrBestiary<T>(
     plugin: InitiativeTracker,
-    creature: Creature | SRDMonster,
-    getter: (creature: Creature | SRDMonster | null) => T
+    creature: Participant | SRDMonster,
+    getter: (creature: Participant | SRDMonster | null) => T
 ): T {
     const fromBase = getter(creature);
     if (fromBase) return fromBase;

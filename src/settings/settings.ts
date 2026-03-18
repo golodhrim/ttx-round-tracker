@@ -24,7 +24,6 @@ import {
     OVERFLOW_TYPE,
     RESOLVE_TIES
 } from "../utils";
-import { RpgSystemSetting, getRpgSystem } from "../utils/rpg-system";
 import type { Party } from "./settings.types";
 import type { InputValidate } from "./settings.types";
 import type { Condition } from "src/types/creatures";
@@ -148,22 +147,9 @@ export default class InitiativeTrackerSettings extends PluginSettingTab {
                 );
             });
         new Setting(containerEl)
-            .setName("Display Encounter Difficulty")
+            .setName("Roll Equivalent Participants Together")
             .setDesc(
-                "Display encounter difficulty based on creature CR and player level. Creatures without CR or level will not be considered in the calculation."
-            )
-            .addToggle((t) => {
-                t.setValue(this.plugin.data.displayDifficulty).onChange(
-                    async (v) => {
-                        this.plugin.data.displayDifficulty = v;
-                        await this.plugin.saveSettings();
-                    }
-                );
-            });
-        new Setting(containerEl)
-            .setName("Roll Equivalent Creatures Together")
-            .setDesc(
-                "Equivalent creatures (same Name and AC) will roll the same initiative by default."
+                "Participants with the same Name and Modifier will roll the same initiative by default."
             )
             .addToggle((t) => {
                 t.setValue(this.plugin.data.condense).onChange(async (v) => {
@@ -173,7 +159,7 @@ export default class InitiativeTrackerSettings extends PluginSettingTab {
             });
 
         new Setting(containerEl)
-            .setName("Embed statblock-link content in the Creature View")
+            .setName("Embed statblock-link content in the Participant View")
             .setDesc(
                 "Prefer embedded content from a statblock-link attribute when present. Fall back to the TTRPG plugin if the link is missing and the plugin is enabled."
             )
@@ -192,91 +178,8 @@ export default class InitiativeTrackerSettings extends PluginSettingTab {
             this.plugin.data.openState.battle = additionalContainer.open;
         };
         const summary = additionalContainer.createEl("summary");
-        new Setting(summary).setHeading().setName("Battle");
+        new Setting(summary).setHeading().setName("Round Settings");
         summary.createDiv("collapser").createDiv("handle");
-        new Setting(additionalContainer)
-            .setName("Clamp Minimum HP")
-            .setDesc(
-                "When a creature takes damage that would reduce its HP below 0, its HP is set to 0 instead."
-            )
-            .addToggle((t) => {
-                t.setValue(this.plugin.data.clamp).onChange(async (v) => {
-                    this.plugin.data.clamp = v;
-                    await this.plugin.saveSettings();
-                });
-            });
-        new Setting(additionalContainer)
-            .setName("Overflow Healing")
-            .setDesc(
-                "Set what happens to healing which goes above creatures' max HP threshold."
-            )
-            .addDropdown((d) => {
-                d.addOption(OVERFLOW_TYPE.ignore, "Ignore");
-                d.addOption(OVERFLOW_TYPE.temp, "Add to temp HP");
-                d.addOption(OVERFLOW_TYPE.current, "Add to current HP");
-                d.setValue(this.plugin.data.hpOverflow ?? OVERFLOW_TYPE.ignore);
-                d.onChange(async (v) => {
-                    this.plugin.data.hpOverflow = v;
-                    this.plugin.saveSettings();
-                });
-            });
-        new Setting(additionalContainer)
-            .setName("Automatic Unconscious Status Application")
-            .setDesc(
-                'When a creature takes damage that would reduce its HP below 0, it gains the "Unconscious" status effect.'
-            )
-            .addToggle((t) => {
-                t.setValue(this.plugin.data.autoStatus).onChange(async (v) => {
-                    this.plugin.data.autoStatus = v;
-                    await this.plugin.saveSettings();
-                });
-            });
-        new Setting(additionalContainer)
-            .setName("Additive Temporary HP")
-            .setDesc(
-                "Any temporary HP added to a creature will be added on top of existing temporary HP."
-            )
-            .addToggle((t) => {
-                t.setValue(this.plugin.data.additiveTemp).onChange(
-                    async (v) => {
-                        this.plugin.data.additiveTemp = v;
-                        await this.plugin.saveSettings();
-                    }
-                );
-            });
-        new Setting(additionalContainer)
-            .setName("Display Player HP in Player View")
-            .setDesc(
-                "If turned off, player health will display as 'Healthy', 'Hurt', etc."
-            )
-            .addToggle((t) => {
-                t.setValue(this.plugin.data.diplayPlayerHPValues).onChange(
-                    async (v) => {
-                        this.plugin.data.diplayPlayerHPValues = v;
-                        await this.plugin.saveSettings();
-                    }
-                );
-            });
-        new Setting(additionalContainer)
-            .setName("Roll HP for Creatures")
-            .setDesc(
-                createFragment((e) => {
-                    e.createSpan({
-                        text: "Creatures added to encounters will automatically roll for HP if the "
-                    });
-                    e.createEl("code", { text: "hit_dice" });
-                    e.createSpan({
-                        text: " property is set for the creature."
-                    });
-                })
-            )
-            .addToggle((t) => {
-                t.setValue(this.plugin.data.rollHP).onChange(async (v) => {
-                    this.plugin.data.rollHP = v;
-                    await this.plugin.saveSettings();
-                });
-            });
-
         new Setting(additionalContainer)
             .setName("Log Battles")
             .setDesc(
@@ -334,11 +237,11 @@ export default class InitiativeTrackerSettings extends PluginSettingTab {
         new Setting(additionalContainer)
             .setName("Resolve Initiative Ties")
             .setDesc(
-                "Define what happens if two creatures have the same initiative."
+                "Define what happens if two participants have the same initiative."
             )
             .addDropdown((d) => {
-                d.addOption(RESOLVE_TIES.playerFirst, "Player first");
-                d.addOption(RESOLVE_TIES.npcFirst, "NPC first");
+                d.addOption(RESOLVE_TIES.playerFirst, "Participant first");
+                d.addOption(RESOLVE_TIES.npcFirst, "Last declared first");
                 d.addOption(RESOLVE_TIES.random, "Random");
                 d.setValue(
                     this.plugin.data.resolveTies ?? RESOLVE_TIES.playerFirst
@@ -404,23 +307,7 @@ export default class InitiativeTrackerSettings extends PluginSettingTab {
             setIcon(
                 headers.createDiv({
                     attr: {
-                        "aria-label": "Level"
-                    }
-                }),
-                "swords"
-            );
-            setIcon(
-                headers.createDiv({
-                    attr: {
-                        "aria-label": "Max HP"
-                    }
-                }),
-                HP
-            );
-            setIcon(
-                headers.createDiv({
-                    attr: {
-                        "aria-label": "Armor Class"
+                        "aria-label": "Role Modifier"
                     }
                 }),
                 AC
@@ -428,7 +315,7 @@ export default class InitiativeTrackerSettings extends PluginSettingTab {
             setIcon(
                 headers.createDiv({
                     attr: {
-                        "aria-label": "Initiative Modifier"
+                        "aria-label": "D20 Bonus"
                     }
                 }),
                 INITIATIVE
@@ -440,12 +327,6 @@ export default class InitiativeTrackerSettings extends PluginSettingTab {
                     "initiative-tracker-player"
                 );
                 playerDiv.createDiv({ text: player.name });
-                playerDiv.createDiv({
-                    text: `${player.level ?? DEFAULT_UNDEFINED}`
-                });
-                playerDiv.createDiv({
-                    text: `${player.hp ?? DEFAULT_UNDEFINED}`
-                });
                 playerDiv.createDiv({
                     text: `${player.ac ?? DEFAULT_UNDEFINED}`
                 });
@@ -486,12 +367,6 @@ export default class InitiativeTrackerSettings extends PluginSettingTab {
                     "initiative-tracker-player"
                 );
                 playerDiv.createDiv({ text: name });
-                playerDiv.createDiv({
-                    text: `${player.level ?? DEFAULT_UNDEFINED}`
-                });
-                playerDiv.createDiv({
-                    text: `${player.hp ?? DEFAULT_UNDEFINED}`
-                });
                 playerDiv.createDiv({
                     text: `${player.ac ?? DEFAULT_UNDEFINED}`
                 });
@@ -540,25 +415,6 @@ export default class InitiativeTrackerSettings extends PluginSettingTab {
                     }
                 );
             });
-        new Setting(additionalContainer)
-            .setName("XP System")
-            .setDesc("XP system to use for encounters")
-            .addDropdown((d) => {
-                Object.values(RpgSystemSetting).forEach((system) =>
-                    d.addOption(
-                        system,
-                        getRpgSystem(this.plugin, system).displayName
-                    )
-                );
-                d.setValue(
-                    this.plugin.data.rpgSystem ?? RpgSystemSetting.Dnd5e
-                );
-                d.onChange(async (v) => {
-                    this.plugin.data.rpgSystem = v;
-                    this.plugin.saveSettings();
-                });
-            });
-
         const additional = additionalContainer.createDiv("additional");
         new Setting(additional).setHeading().setName("Saved Encounters");
         if (!Object.keys(this.plugin.data.encounters).length) {
@@ -1086,15 +942,10 @@ class NewPlayerModal extends Modal {
                     this.player.name = file.basename;
 
                     if (!metaData || !metaData.frontmatter) return;
-                    const { ac, hp, modifier, level, name } =
+                    const { ac, modifier, name } =
                         metaData.frontmatter;
                     this.player.name = name ?? this.player.name;
                     this.player.ac = parseInt(ac ?? this.player.ac, 10);
-                    this.player.hp = parseInt(hp ?? this.player.hp, 10);
-                    this.player.level = parseInt(
-                        level ?? this.player.level,
-                        10
-                    );
                     this.player.modifier = parseInt(
                         modifier ?? this.player.modifier,
                         10
@@ -1106,8 +957,6 @@ class NewPlayerModal extends Modal {
             });
 
         let nameInput: InputValidate,
-            levelInput: InputValidate,
-            hpInput: InputValidate,
             modInput: InputValidate;
 
         new Setting(contentEl)
@@ -1135,54 +984,15 @@ class NewPlayerModal extends Modal {
                     this.player.name = v;
                 });
             });
-        new Setting(contentEl)
-            .setName("Level")
-            .setDesc("Player level.")
-            .addText((t) => {
-                levelInput = {
-                    input: t.inputEl,
-                    validate: (i: HTMLInputElement) => {
-                        let error = false;
-                        if (isNaN(Number(i.value)) || Number(i.value) <= 0) {
-                            i.addClass("has-error");
-                            error = true;
-                        }
-                        return error;
-                    }
-                };
-                t.setValue(`${this.player.level ?? ""}`);
-                t.onChange((v) => {
-                    t.inputEl.removeClass("has-error");
-                    this.player.level = Number(v);
-                });
-            });
-        new Setting(contentEl).setName("Max Hit Points").addText((t) => {
-            hpInput = {
-                input: t.inputEl,
-                validate: (i: HTMLInputElement) => {
-                    let error = false;
-                    if (isNaN(Number(i.value))) {
-                        i.addClass("has-error");
-                        error = true;
-                    }
-                    return error;
-                }
-            };
-            t.setValue(`${this.player.hp ?? ""}`);
-            t.onChange((v) => {
-                t.inputEl.removeClass("has-error");
-                this.player.hp = Number(v);
-            });
-        });
-        new Setting(contentEl).setName("Armor Class").addText((t) => {
+        new Setting(contentEl).setName("Role Modifier").addText((t) => {
             t.setValue(`${this.player.ac ?? ""}`);
             t.onChange((v) => {
                 this.player.ac = v;
             });
         });
         new Setting(contentEl)
-            .setName("Initiative Modifier")
-            .setDesc("This will be added to randomly-rolled initiatives.")
+            .setName("D20 Bonus")
+            .setDesc("Added to D20 rolls. Set to the player's highest role modifier.")
             .addText((t) => {
                 modInput = {
                     input: t.inputEl,
@@ -1209,7 +1019,6 @@ class NewPlayerModal extends Modal {
                 .onClick(async () => {
                     let error = this.validateInputs(
                         nameInput,
-                        hpInput,
                         modInput
                     );
                     if (error) {
@@ -1231,7 +1040,7 @@ class NewPlayerModal extends Modal {
             return b;
         });
 
-        this.validateInputs(nameInput, hpInput, modInput);
+        this.validateInputs(nameInput, modInput);
     }
     validateInputs(...inputs: InputValidate[]) {
         let error = false;

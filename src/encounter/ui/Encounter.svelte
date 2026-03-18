@@ -2,7 +2,7 @@
     import { ExtraButtonComponent, setIcon } from "obsidian";
     import { getRpgSystem, DICE, RANDOM_HP, START_ENCOUNTER } from "src/utils";
 
-    import { Creature } from "src/utils/creature";
+    import { Participant } from "src/utils/creature";
     import type InitiativeTracker from "src/main";
     import { tracker } from "src/tracker/stores/tracker";
     import type { CreatureState } from "src/types/creatures";
@@ -15,7 +15,7 @@
     setContext("plugin", plugin);
 
     export let name: string = "Encounter";
-    export let creatures: Map<Creature, number | string> = new Map();
+    export let creatures: Map<Participant, number | string> = new Map();
     export let players: string[];
     export let party: string = null;
 
@@ -25,8 +25,8 @@
 
     export let playerLevels: number[];
 
-    let creatureMap: Map<Creature, number> = new Map();
-    const rollerMap: Map<Creature, StackRoller> = new Map();
+    let creatureMap: Map<Participant, number> = new Map();
+    const rollerMap: Map<Participant, StackRoller> = new Map();
     const rpgSystem = getRpgSystem(plugin);
 
     for (let [creature, count] of creatures) {
@@ -61,11 +61,11 @@
         }
 
         const view = plugin.view;
-        const creatures: Creature[] = [...creatureMap]
+        const creatures: Participant[] = [...creatureMap]
             .map(([creature, number]) => {
                 if (isNaN(Number(number)) || number < 1) return [creature];
                 return [...Array(number).keys()].map((v) =>
-                    Creature.new(creature)
+                    Participant.new(creature)
                 );
             })
             .flat();
@@ -75,7 +75,7 @@
             ...players
         ];
 
-        const playersForEncounter: Creature[] = [];
+        const playersForEncounter: Participant[] = [];
         for (const name of new Set(combinedPlayers)) {
             playersForEncounter.push(plugin.getPlayerByName(name));
         }
@@ -104,11 +104,11 @@
         if (!plugin.view) {
             await plugin.addTrackerView();
         }
-        const creatures: Creature[] = [...creatureMap]
+        const creatures: Participant[] = [...creatureMap]
             .map(([creature, number]) => {
                 if (isNaN(Number(number)) || number < 1) return [creature];
                 return [...Array(number).keys()].map((v) =>
-                    Creature.new(creature)
+                    Participant.new(creature)
                 );
             })
             .flat();
@@ -120,7 +120,7 @@
         tracker.add(plugin, rollHP, ...creatures);
     };
 
-    const rollerEl = (node: HTMLElement, creature: Creature) => {
+    const rollerEl = (node: HTMLElement, creature: Participant) => {
         if (
             plugin.canUseDiceRoller &&
             rollerMap.has(creature) &&
@@ -135,7 +135,7 @@
         }
     };
 
-    const label = (creature: Creature) => {
+    const label = (creature: Participant) => {
         if (!creature) return;
         let label = [];
         if (creature.hp) {

@@ -1,14 +1,14 @@
 import { normalizePath, TFile } from "obsidian";
 import type InitiativeTracker from "../main";
-import type { Creature } from "../utils/creature";
+import type { Participant } from "../utils/creature";
 
 import { tracker } from "src/tracker/stores/tracker";
 import type { UpdateLogMessage } from "./logger.types";
 
 export interface LogState {
     name?: string;
-    players: Creature[];
-    creatures: Creature[];
+    players: Participant[];
+    creatures: Participant[];
     round: number;
 }
 
@@ -91,7 +91,7 @@ export default class Logger {
                 );
             }
             await this.log("## Creatures");
-            await this.log("| Creature | Initiative  | HP | Statuses |");
+            await this.log("| Participant | Initiative  | HP | Statuses |");
             await this.log("| --- | :-: | :-: | :-: |");
             for (const creature of param.creatures.sort(
                 (a, b) => b.initiative - a.initiative

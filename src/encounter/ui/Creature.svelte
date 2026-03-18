@@ -2,13 +2,13 @@
     import { setIcon } from "obsidian";
     import type InitiativeTracker from "src/main";
     import { FRIENDLY, HIDDEN, RANDOM_HP, getRpgSystem } from "src/utils";
-    import type { Creature } from "src/utils/creature";
+    import type { Participant } from "src/utils/creature";
     import { getContext } from "svelte";
 
     const plugin = getContext<InitiativeTracker>("plugin");
     const rpgSystem = getRpgSystem(plugin);
 
-    export let creature: Creature;
+    export let creature: Participant;
     export let count: string | number;
     export let xp: number;
     export let shouldShowRoll: boolean;

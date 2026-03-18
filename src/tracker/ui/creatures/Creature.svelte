@@ -1,6 +1,6 @@
 <script lang="ts">
     import { DEFAULT_UNDEFINED, FRIENDLY, HIDDEN } from "src/utils";
-    import type { Creature } from "src/utils/creature";
+    import type { Participant } from "src/utils/creature";
     import Initiative from "./Initiative.svelte";
     import CreatureControls from "./CreatureControls.svelte";
     import Status from "./Status.svelte";
@@ -9,9 +9,8 @@
     import { createEventDispatcher } from "svelte";
 
     const dispatch = createEventDispatcher();
-    const { updateTarget } = tracker;
 
-    export let creature: Creature;
+    export let creature: Participant;
     $: statuses = creature.status;
 
     const name = () => creature.getName();
@@ -106,37 +105,8 @@
     </div>
 </td>
 
-<td
-    class="center hp-container creature-adder"
-    class:mobile={Platform.isMobile}
-    on:click|stopPropagation={(evt) => {
-        const prev = $updateTarget;
-        $updateTarget = "hp";
-        if (prev == "ac") return;
-        tracker.setUpdate(creature, evt);
-    }}
->
-    <div>
-        {@html creature.hpDisplay}
-    </div>
-</td>
-
-<td
-    class="center ac-container creature-adder"
-    class:mobile={Platform.isMobile}
-    on:click|stopPropagation={(evt) => {
-        const prev = $updateTarget;
-        $updateTarget = "ac";
-        if (prev == "hp") return;
-        tracker.setUpdate(creature, evt);
-    }}
->
-    <div
-        class:dirty-ac={creature.current_ac != creature.ac}
-        aria-label={creature.current_ac != creature.ac ? `${creature.ac}` : ""}
-    >
-        {creature.current_ac ? creature.current_ac : DEFAULT_UNDEFINED}
-    </div>
+<td class="center ac-container" class:mobile={Platform.isMobile} aria-label="Role Modifier">
+    <div>{creature.ac ? creature.ac : DEFAULT_UNDEFINED}</div>
 </td>
 
 <td class="controls-container">
@@ -144,7 +114,6 @@
         on:click={(e) => e.stopPropagation()}
         on:tag
         on:edit
-        on:hp
         {creature}
     />
 </td>
@@ -172,10 +141,6 @@
     .center {
         text-align: center;
     }
-    .creature-adder {
-        cursor: pointer;
-    }
-
     .statuses {
         display: flex;
         flex-flow: row wrap;
@@ -189,9 +154,6 @@
     .controls-container {
         border-top-right-radius: 0.25rem;
         border-bottom-right-radius: 0.25rem;
-    }
-    .dirty-ac {
-        font-weight: var(--font-bold);
     }
     .mobile {
         font-size: smaller;

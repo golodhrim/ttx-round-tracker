@@ -2,7 +2,7 @@ import type { InitiativeViewState } from "src/tracker/view.types";
 import type InitiativeTracker from "../main";
 import { tracker } from "../tracker/stores/tracker";
 import { type HomebrewCreature } from "src/types/creatures";
-import { Creature } from "src/utils/creature";
+import { Participant } from "src/utils/creature";
 
 declare module "obsidian" {
     interface Workspace {
@@ -61,13 +61,13 @@ export class API {
         this.#tracker.add(
             this.plugin,
             rollHP,
-            ...creatures.map((c) => Creature.from(c))
+            ...creatures.map((c) => Participant.from(c))
         );
     }
     newEncounter(state?: InitiativeViewState) {
         if (state?.creatures) {
             state.creatures = state.creatures.map((c) =>
-                Creature.from(c).toJSON()
+                Participant.from(c).toJSON()
             );
         }
         this.#tracker.new(this.plugin, state);

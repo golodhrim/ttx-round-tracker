@@ -3,7 +3,7 @@ import { FuzzyInputSuggest } from "obsidian-utilities";
 
 import type { HomebrewCreature } from "src/types/creatures";
 import type { SRDMonster } from "src/types/creatures";
-import type { Creature } from "./creature";
+import type { Participant } from "./creature";
 
 export class SRDMonsterSuggestionModal extends FuzzyInputSuggest<
     HomebrewCreature | SRDMonster
@@ -34,12 +34,12 @@ export class ConditionSuggestionModal extends FuzzyInputSuggest<string> {
     }
 }
 
-export class PlayerSuggestionModal extends FuzzyInputSuggest<Creature> {
-    renderNote(noteEL: HTMLElement, result: FuzzyMatch<Creature>): void {}
-    renderTitle(titleEl: HTMLElement, result: FuzzyMatch<Creature>): void {
+export class PlayerSuggestionModal extends FuzzyInputSuggest<Participant> {
+    renderNote(noteEL: HTMLElement, result: FuzzyMatch<Participant>): void {}
+    renderTitle(titleEl: HTMLElement, result: FuzzyMatch<Participant>): void {
         this.renderMatches(titleEl, result.item.name, result.match.matches);
     }
-    getItemText(item: Creature) {
+    getItemText(item: Participant) {
         return item.name;
     }
 }

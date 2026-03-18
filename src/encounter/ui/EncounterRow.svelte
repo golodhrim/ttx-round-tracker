@@ -9,13 +9,13 @@
         RANDOM_HP,
         START_ENCOUNTER
     } from "src/utils";
-    import { Creature } from "src/utils/creature";
+    import { Participant } from "src/utils/creature";
     import CreatureComponent from "./Creature.svelte";
     import type { StackRoller } from "@javalent/dice-roller";
     import { setContext } from "svelte";
 
     export let name: string = "Encounter";
-    export let creatures: Map<Creature, number | string>;
+    export let creatures: Map<Participant, number | string>;
     export let players: string[];
 
     export let hide: string[] = [];
@@ -26,8 +26,8 @@
     export let headers: string[];
     export let rollHP: boolean = plugin.data.rollHP;
 
-    let creatureMap: Map<Creature, number> = new Map();
-    const rollerMap: Map<Creature, StackRoller> = new Map();
+    let creatureMap: Map<Participant, number> = new Map();
+    const rollerMap: Map<Participant, StackRoller> = new Map();
     const rpgSystem = getRpgSystem(plugin);
 
     for (let [creature, count] of creatures) {
@@ -66,7 +66,7 @@
                         if (isNaN(Number(number)) || number < 1)
                             return [creature.toJSON()];
                         return [...Array(number).keys()].map((v) =>
-                            Creature.new(creature).toJSON()
+                            Participant.new(creature).toJSON()
                         );
                     })
                     .flat();
@@ -97,18 +97,18 @@
             await plugin.addTrackerView();
         }
         const view = plugin.view;
-        const creatures: Creature[] = [...creatureMap]
+        const creatures: Participant[] = [...creatureMap]
             .map(([creature, number]) => {
                 if (isNaN(Number(number)) || number < 1) return [creature];
                 return [...Array(number).keys()].map((v) =>
-                    Creature.new(creature)
+                    Participant.new(creature)
                 );
             })
             .flat();
         tracker.add(plugin, rollHP, ...creatures);
     };
 
-    const rollerEl = (node: HTMLElement, creature: Creature) => {
+    const rollerEl = (node: HTMLElement, creature: Participant) => {
         if (
             plugin.canUseDiceRoller &&
             rollerMap.has(creature) &&
@@ -129,7 +129,7 @@
         if (index == length - 1) return `${delim} and `;
         return `${delim} `;
     };
-    const label = (creature: Creature) => {
+    const label = (creature: Participant) => {
         if (!creature) return;
         let label = [];
         if (creature.hp) {

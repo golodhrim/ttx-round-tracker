@@ -9,7 +9,7 @@
     } from "obsidian";
 
     import Creature from "./Creature.svelte";
-    import { Creature as CreatureCreator } from "../../../utils/creature";
+    import { Participant as ParticipantCreator } from "../../../utils/creature";
 
     import { encounter } from "../../stores/encounter";
     import { START_ENCOUNTER } from "src/utils";
@@ -49,17 +49,17 @@
                 }
 
                 const view = plugin.view;
-                const creatures: CreatureCreator[] = [];
+                const creatures: ParticipantCreator[] = [];
                 const transformedCreatures: CreatureState[] = [];
                 for (const [srd, count] of items) {
-                    const creature = CreatureCreator.from(srd);
+                    const creature = ParticipantCreator.from(srd);
                     const amount = Math.max(
                         isNaN(Number(count)) ? 1 : Number(count),
                         1
                     );
                     creatures.push(
                         ...[...Array(amount).keys()].map((v) =>
-                            CreatureCreator.new(creature)
+                            ParticipantCreator.new(creature)
                         )
                     );
                 }
@@ -67,7 +67,7 @@
                     ...$players.map(
                         (p) =>
                             plugin.getPlayerByName(p.name) ??
-                            CreatureCreator.from(p)
+                            ParticipantCreator.from(p)
                     ),
                     ...creatures
                 ]) {
@@ -120,11 +120,11 @@
         const saveEncounter = () => {
             try {
                 const creatures = [
-                    ...[...$players].map((p) => CreatureCreator.from(p)),
+                    ...[...$players].map((p) => ParticipantCreator.from(p)),
                     ...[...$encounter.entries()]
                         .map((c) =>
                             [...Array(c[1]).keys()].map(() =>
-                                CreatureCreator.from(c[0])
+                                ParticipantCreator.from(c[0])
                             )
                         )
                         .flat()
@@ -214,7 +214,7 @@
                             players.addFromState(creature);
                         } else {
                             encounter.add(
-                                CreatureCreator.fromJSON(
+                                ParticipantCreator.fromJSON(
                                     creature,
                                     plugin
                                 ) as any as SRDMonster

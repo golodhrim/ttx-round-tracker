@@ -17,7 +17,7 @@ import {
 import type InitiativeTracker from "../main";
 
 import App from "./ui/App.svelte";
-import type { Creature } from "../utils/creature";
+import type { Participant } from "../utils/creature";
 import { PLAYER_VIEW_VIEW } from "../utils/constants";
 import type PlayerView from "./player-view";
 
@@ -50,10 +50,10 @@ export default class TrackerView extends ItemView {
     }
 
     //legacy Leaflet support...
-    get pcs(): Creature[] {
+    get pcs(): Participant[] {
         return [];
     }
-    get npcs(): Creature[] {
+    get npcs(): Participant[] {
         return [];
     }
 
@@ -128,7 +128,7 @@ export class CreatureView extends ItemView {
     onunload(): void {
         this.app.workspace.trigger("initiative-tracker:stop-viewing");
     }
-    async render(creature?: Creature) {
+    async render(creature?: Participant) {
         this.statblockEl.empty();
         if (!creature) {
             this.statblockEl.createEl("em", {

@@ -4,7 +4,7 @@
     import { SyncLoader } from "svelte-loading-spinners";
 
     import { AC, FRIENDLY, HP, INITIATIVE } from "src/utils";
-    import type { Creature } from "src/utils/creature";
+    import type { Participant } from "src/utils/creature";
     import { createEventDispatcher } from "svelte";
 
     import { tracker } from "../stores/tracker";
@@ -28,7 +28,7 @@
         return "Healthy";
     };
 
-    const amIActive = (creature: Creature) => {
+    const amIActive = (creature: Participant) => {
         if (creature.hidden) return false;
         if (creature.active) return true;
 
@@ -43,7 +43,7 @@
 
     $: activeAndVisible = $ordered.filter((c) => c.enabled && !c.hidden);
 
-    const name = (creature: Creature) => creature.getName();
+    const name = (creature: Participant) => creature.getName();
     const friendIcon = (node: HTMLElement) => {
         setIcon(node, FRIENDLY);
     };

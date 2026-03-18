@@ -1,6 +1,6 @@
 import { MarkdownRenderChild, Notice, parseYaml } from "obsidian";
 import type InitiativeTracker from "../main";
-import { Creature } from "../utils/creature";
+import { Participant } from "../utils/creature";
 
 import EncounterUI from "./ui/Encounter.svelte";
 import EncounterTable from "./ui/EncounterTable.svelte";
@@ -31,8 +31,8 @@ interface CreatureStats {
 }
 
 export const equivalent = (
-    creature: Creature | CreatureStats,
-    existing: Creature | CreatureStats
+    creature: Participant | CreatureStats,
+    existing: Participant | CreatureStats
 ) => {
     return (
         creature.name == existing.name &&
@@ -68,7 +68,7 @@ export interface ParsedParams {
     players: string[];
     party: string;
     hide: string[];
-    creatures: Map<Creature, string | number>;
+    creatures: Map<Participant, string | number>;
     xp: number;
     playerLevels: number[];
     rollHP?: boolean;
@@ -170,7 +170,7 @@ export class EncounterParser {
         return Array.from(new Set(playersToReturn));
     }
     async parseRawCreatures(rawMonsters: RawCreatureArray, rollHP: boolean) {
-        const creatureMap: Map<Creature, number | string> = new Map();
+        const creatureMap: Map<Participant, number | string> = new Map();
         if (rawMonsters && Array.isArray(rawMonsters)) {
             for (const raw of rawMonsters) {
                 const { creature, number = 1 } =
@@ -311,8 +311,8 @@ export class EncounterParser {
         if (!name || typeof name != "string") return {};
         let existing = this.plugin.getCreatureFromBestiary(name);
         let creature = existing
-            ? Creature.from(existing)
-            : new Creature({ name });
+            ? Participant.from(existing)
+            : new Participant({ name });
 
         creature.display = display;
         creature.hp = hp ?? creature.hp;

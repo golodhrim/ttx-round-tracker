@@ -2,7 +2,7 @@
     import { ButtonComponent, Platform, TFile } from "obsidian";
     import type InitiativeTracker from "src/main";
     import { tracker } from "src/tracker/stores/tracker";
-    import { Creature } from "src/utils/creature";
+    import { Participant } from "src/utils/creature";
     import { createEventDispatcher } from "svelte";
     import { writable } from "svelte/store";
     import Create from "./Create.svelte";
@@ -12,12 +12,12 @@
 
     export let plugin: InitiativeTracker;
     export let isEditing = false;
-    export let creature: Creature = null;
+    export let creature: Participant = null;
 
     let rollHP = plugin.data.rollHP;
 
-    const adding = writable<Array<[Creature, number]>>([]);
-    const editing = writable<Creature>(creature);
+    const adding = writable<Array<[Participant, number]>>([]);
+    const editing = writable<Participant>(creature);
 
     const cancel = (node: HTMLElement) => {
         new ButtonComponent(node)
@@ -46,7 +46,7 @@
                 } else {
                     const creatures = $adding.flatMap(([creature, amount]) => {
                         return [...Array(amount).keys()].map((k) =>
-                            Creature.new(creature)
+                            Participant.new(creature)
                         );
                     });
 
