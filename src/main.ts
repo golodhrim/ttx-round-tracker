@@ -17,7 +17,8 @@ import {
     registerIcons
 } from "./utils";
 
-import { PLAYER_VIEW_VIEW } from "./utils/constants";
+import { PLAYER_VIEW_VIEW, TTX_CONSOLE_VIEW } from "./utils/constants";
+import TTXConsoleView from "./console/console.view";
 import type { InitiativeTrackerData } from "./settings/settings.types";
 import type { InitiativeViewState } from "./tracker/view.types";
 import type { HomebrewCreature } from "./types/creatures";
@@ -219,6 +220,17 @@ export default class InitiativeTracker extends Plugin {
         ]);
     }
 
+    async activateTTXConsole() {
+        const existing = this.app.workspace.getLeavesOfType(TTX_CONSOLE_VIEW);
+        if (existing.length) {
+            this.app.workspace.revealLeaf(existing[0]);
+            return;
+        }
+        const leaf = this.app.workspace.getRightLeaf(false);
+        await leaf.setViewState({ type: TTX_CONSOLE_VIEW, active: true });
+        this.app.workspace.revealLeaf(leaf);
+    }
+
     async onload() {
         registerIcons();
 
@@ -244,6 +256,14 @@ export default class InitiativeTracker extends Plugin {
             BUILDER_VIEW,
             (leaf: WorkspaceLeaf) => new BuilderView(leaf, this)
         );
+        this.registerView(
+            TTX_CONSOLE_VIEW,
+            (leaf) => new TTXConsoleView(leaf, this)
+        );
+
+        this.addRibbonIcon("shield", "TTX Console", () => {
+            this.activateTTXConsole();
+        });
 
         this.addCommands();
         this.addEvents();
