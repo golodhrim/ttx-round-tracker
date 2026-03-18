@@ -6,6 +6,7 @@
     import type { SessionConfig } from "../console.types";
     import SessionResume from "./setup/SessionResume.svelte";
     import SessionSetup from "./setup/SessionSetup.svelte";
+    import PlayerConsole from "./player/PlayerConsole.svelte";
 
     export let plugin: InitiativeTracker;
 
@@ -50,8 +51,12 @@
         <SessionSetup {plugin} {onConfigured} />
     {:else if screen === "sgm"}
         <p>SGM Console — coming in Chunk 3</p>
-    {:else if screen === "player"}
-        <p>Player Console — coming in Task 7</p>
+    {:else if screen === "player" && activeConfig}
+        <PlayerConsole
+            {plugin}
+            config={activeConfig}
+            participant={activeConfig.participants[0]}
+        />
     {/if}
 </div>
 
