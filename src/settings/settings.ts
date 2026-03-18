@@ -114,6 +114,41 @@ export default class InitiativeTrackerSettings extends PluginSettingTab {
                 })
             );
 
+            // TTX Console section
+            const ttxContainer = containerEl.createEl("details", {
+                cls: "initiative-tracker-additional-container"
+            });
+            new Setting(ttxContainer.createEl("summary"))
+                .setHeading()
+                .setName("TTX Console");
+            ttxContainer.createDiv("collapser").createDiv("handle");
+
+            new Setting(ttxContainer)
+                .setName("SGM Mode")
+                .setDesc(
+                    "Enable on the Scenario Game Master's device. Shows the full console with DC input, roll controls, and finalize. Disable on player devices."
+                )
+                .addToggle((t) => {
+                    t.setValue(this.plugin.data.ttxConsoleSGM).onChange(async (v) => {
+                        this.plugin.data.ttxConsoleSGM = v;
+                        await this.plugin.saveSettings();
+                    });
+                });
+
+            new Setting(ttxContainer)
+                .setName("Sessions Folder")
+                .setDesc(
+                    "Base folder where session config files are stored. Default: 04 Sessions"
+                )
+                .addText((t) => {
+                    t.setValue(this.plugin.data.ttxConsoleSessionsPath).onChange(
+                        async (v) => {
+                            this.plugin.data.ttxConsoleSessionsPath = v;
+                            await this.plugin.saveSettings();
+                        }
+                    );
+                });
+
             const div = containerEl.createDiv("coffee");
             div.createEl("a", {
                 href: "https://www.buymeacoffee.com/valentine195"
