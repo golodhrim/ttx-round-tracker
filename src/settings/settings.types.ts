@@ -48,6 +48,8 @@ export interface InitiativeTrackerData {
     version: number[];
 
     rollPlayerInitiatives: RollPlayerInitiativeBehavior;
+    ttxConsoleSGM: boolean;
+    ttxConsoleSessionsPath: string;
 }
 export interface InputValidate {
     input: HTMLInputElement;

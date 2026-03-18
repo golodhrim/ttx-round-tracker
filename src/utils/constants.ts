@@ -5,6 +5,7 @@ import { Conditions } from "./conditions";
 export const INITIATIVE_TRACKER_VIEW = "initiative-tracker-view";
 export const PLAYER_VIEW_VIEW = "initiative-tracker-player-view";
 export const CREATURE_TRACKER_VIEW = "initiative-tracker-creature-view";
+export const TTX_CONSOLE_VIEW = "ttx-console-view";
 
 export const MIN_WIDTH_FOR_HAMBURGER = 300;
 
@@ -81,7 +82,9 @@ export const DEFAULT_SETTINGS: InitiativeTrackerData = {
         showXP: true,
         sidebarIcon: true
     },
-    rollPlayerInitiatives: RollPlayerInitiativeBehavior.Always
+    rollPlayerInitiatives: RollPlayerInitiativeBehavior.Always,
+    ttxConsoleSGM: false,
+    ttxConsoleSessionsPath: "04 Sessions",
 };
 
 export const DECIMAL_TO_VULGAR_FRACTION: Record<string, string> = {
