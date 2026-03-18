@@ -2,7 +2,6 @@
     import {
         ExtraButtonComponent,
         Notice,
-        ToggleComponent,
         TextComponent,
         Platform
     } from "obsidian";
@@ -10,7 +9,6 @@
     import { onMount } from "svelte";
 
     import { DICE } from "src/utils";
-    import { SRDMonsterSuggestionModal } from "src/utils/suggester";
     import { Creature } from "src/utils/creature";
     import type InitiativeTracker from "src/main";
     import type { Writable } from "svelte/store";
@@ -29,98 +27,48 @@
         creature = c;
     });
 
-    $: {
-        if (Platform.isMobile) {
-            $adding.splice(0, 1, [creature, amount]);
-        }
-    }
-
     let modifier = JSON.stringify(creature.modifier ?? 0);
     const prior = modifier;
+
     const saveButton = (node: HTMLElement) => {
         new ExtraButtonComponent(node)
-            .setTooltip("Add Creature")
+            .setTooltip("Add Participant")
             .setIcon("plus")
             .onClick(async () => {
                 if (!creature || !creature.name || !creature.name?.length) {
                     new Notice("Enter a name!");
                     return;
                 }
-                try {
-                    creature.modifier = JSON.parse(`${modifier}`);
-                } catch (e) {
-                    console.warn(
-                        "Initiative Tracker: Non-parseable modifier provided to creature."
-                    );
-                    creature.modifier = JSON.parse(prior);
-                }
-                if (!creature.modifier) {
-                    creature.modifier = JSON.parse(prior);
-                }
-                if (
-                    (Array.isArray(creature.modifier) &&
-                        !creature.modifier.every((m) => !isNaN(Number(m)))) ||
-                    isNaN(Number(creature.modifier))
-                ) {
-                    console.warn(
-                        "Initiative Tracker: Non-numeric modifier provided to creature."
-                    );
-                    creature.modifier = 0;
-                }
-                if (
-                    creature.initiative <= 0 ||
-                    creature.initiative == null ||
-                    isNaN(creature.initiative)
-                ) {
-                    creature.initiative = await plugin.getInitiativeValue(
-                        creature.modifier
-                    );
-                }
+                try { creature.modifier = JSON.parse(`${modifier}`); }
+                catch (e) { creature.modifier = JSON.parse(prior); }
+                if (!creature.modifier) creature.modifier = JSON.parse(prior);
 
-                let existing = $adding.findIndex(([k]) =>
-                    equivalent(k, creature)
-                );
-                if (existing > -1) {
-                    $adding[existing][1] += amount;
-                } else {
-                    $adding.push([creature, amount]);
+                if (creature.initiative <= 0 || creature.initiative == null || isNaN(creature.initiative)) {
+                    creature.initiative = await plugin.getInitiativeValue(creature.modifier);
                 }
+                let existing = $adding.findIndex(([k]) => equivalent(k, creature));
+                if (existing > -1) { $adding[existing][1] += 1; }
+                else { $adding.push([creature, 1]); }
                 $adding = $adding;
                 $editing = null;
                 creature = new Creature({});
             });
     };
+
     const editButton = (node: HTMLElement) => {
         new ExtraButtonComponent(node)
-            .setTooltip("Add Creature")
+            .setTooltip("Save Participant")
             .setIcon("save")
             .onClick(async () => {
                 if (!creature || !creature.name || !creature.name?.length) {
-                    new Notice("Enter a name!");
-                    return;
+                    new Notice("Enter a name!"); return;
                 }
-                if (!creature.modifier) {
-                    creature.modifier = 0;
+                if (!creature.modifier) creature.modifier = 0;
+                if (creature.initiative <= 0 || creature.initiative == null || isNaN(creature.initiative)) {
+                    creature.initiative = await plugin.getInitiativeValue(creature.modifier);
                 }
-                if (
-                    creature.initiative <= 0 ||
-                    creature.initiative == null ||
-                    isNaN(creature.initiative)
-                ) {
-                    creature.initiative = await plugin.getInitiativeValue(
-                        creature.modifier
-                    );
-                }
-                let existing = $adding.findIndex(
-                    ([k]) => k != creature && equivalent(k, creature)
-                );
-                if (
-                    existing > -1 &&
-                    (await confirmWithModal(
-                        app,
-                        `This will merge ${creature.name} with ${$adding[existing][0].name}.`
-                    ))
-                ) {
+                let existing = $adding.findIndex(([k]) => k != creature && equivalent(k, creature));
+                if (existing > -1 && (await confirmWithModal(app, `This will merge ${creature.name} with ${$adding[existing][0].name}.`))) {
                     const index = $adding.findIndex(([k]) => k == creature);
                     $adding[existing][1] += $adding[index][1];
                     $adding.splice(index, 1);
@@ -130,172 +78,60 @@
                 creature = new Creature({});
             });
     };
+
     const cancelButton = (node: HTMLElement) => {
-        new ExtraButtonComponent(node)
-            .setTooltip("Cancel")
-            .setIcon("reset")
-            .onClick(() => {
-                creature = new Creature({});
-            });
+        new ExtraButtonComponent(node).setTooltip("Cancel").setIcon("reset")
+            .onClick(() => { creature = new Creature({}); });
     };
+
     const diceButton = (node: HTMLElement) => {
-        new ExtraButtonComponent(node)
-            .setIcon(DICE)
-            .setTooltip("Roll Initiative")
+        new ExtraButtonComponent(node).setIcon(DICE).setTooltip("Roll D20")
             .onClick(async () => {
-                creature.initiative = await plugin.getInitiativeValue(
-                    creature.modifier
-                );
+                creature.initiative = await plugin.getInitiativeValue(creature.modifier);
             });
     };
-    let nameInput: TextComponent, displayNameInput: HTMLInputElement;
+
+    let nameInput: TextComponent;
+    let displayNameInput: HTMLInputElement;
+
     const name = (node: HTMLElement) => {
         nameInput = new TextComponent(node)
             .setValue(creature.name)
             .onChange((v) => (creature.name = v));
     };
-    let modal: SRDMonsterSuggestionModal;
-    const createModal = () => {
-        modal = new SRDMonsterSuggestionModal(
-            plugin.app,
-            nameInput,
-            plugin.bestiary
-        );
-        modal.onSelect(async (selected) => {
-            if (selected.item) {
-                creature = Creature.from(selected.item);
-
-                creature.initiative = await plugin.getInitiativeValue(
-                    creature.modifier
-                );
-                nameInput.setValue(creature.name);
-            }
-            modal.close();
-        });
-    };
 
     onMount(() => {
-        if (isEditing) {
-            setImmediate(() => {
-                displayNameInput.focus();
-                createModal();
-            });
-        } else {
-            createModal();
-        }
+        if (isEditing) setImmediate(() => displayNameInput.focus());
     });
-    const hideToggle = (div: HTMLDivElement) => {
-        new ToggleComponent(div)
-            .setValue(creature.hidden)
-            .onChange((v) => (creature.hidden = v));
-    };
-    const staticToggle = (div: HTMLDivElement) => {
-        new ToggleComponent(div)
-            .setValue(creature.static)
-            .onChange((v) => (creature.static = v));
-    };
-    const friendToggle = (div: HTMLDivElement) => {
-        new ToggleComponent(div)
-            .setValue(creature.friendly)
-            .onChange((v) => (creature.friendly = v));
-    };
 </script>
 
 <div class="initiative-tracker-editor">
     <div class="create-new">
         <div>
-            <label for="add-name">Creature</label>
+            <label for="add-name">Participant</label>
             <div use:name id="add-name" />
         </div>
         <div>
             <label for="add-display">Display Name</label>
-            <input
-                bind:value={creature.display}
-                bind:this={displayNameInput}
-                id="add-display"
-                type="text"
-                name="display"
-                tabindex="0"
-            />
+            <input bind:value={creature.display} bind:this={displayNameInput}
+                id="add-display" type="text" name="display" tabindex="0" />
         </div>
         <div>
-            <label for="add-hp">HP</label>
-            <input
-                bind:value={creature.hp}
-                id="add-hp"
-                type="number"
-                name="hp"
-                tabindex="0"
-            />
+            <label for="add-mod">D20 Bonus</label>
+            <input bind:value={modifier} id="add-mod" type="text" name="add-mod" tabindex="0" />
         </div>
         <div>
-            <label for="hit-dice">Hit Dice</label>
-            <input
-                bind:value={creature.hit_dice}
-                id="hit-dice"
-                type="text"
-                name="hitdice"
-                tabindex="0"
-            />
+            <label for="add-ac">Role Modifier (label)</label>
+            <input bind:value={creature.ac} id="add-ac" name="ac" type="text" tabindex="0" />
         </div>
-        <div>
-            <label for="add-ac">AC</label>
-            <input
-                bind:value={creature.ac}
-                on:change={() => (creature.dirty_ac = true)}
-                id="add-ac"
-                name="ac"
-                type="text"
-                tabindex="0"
-            />
-        </div>
-        <div>
-            <label for="add-mod">Modifier</label>
-            <input
-                bind:value={modifier}
-                id="add-mod"
-                type="text"
-                name="add-mod"
-                tabindex="0"
-            />
-        </div>
-
         <div class="initiative">
-            <label for="add-init">Initiative</label>
-            <input
-                bind:value={creature.initiative}
-                id="add-init"
-                type="number"
-                name="initiative"
-                tabindex="0"
-            />
+            <label for="add-init">D20 Roll</label>
+            <input bind:value={creature.initiative} id="add-init" type="number" name="initiative" tabindex="0" />
             <div class="dice" use:diceButton />
         </div>
-
-        {#key creature}
-            <div>
-                <label for="add-mod">Static Initiative</label>
-                <div use:staticToggle />
-            </div>
-            <div>
-                <label for="add-mod">Hidden</label>
-                <div use:hideToggle />
-            </div>
-            <div>
-                <label for="add-mod">Friendly</label>
-                <div use:friendToggle />
-            </div>
-        {/key}
-
-        <div class="amount">
-            <label for="add-init">Amount</label>
-            <input
-                bind:value={amount}
-                id="add-init"
-                type="number"
-                name="initiative"
-                tabindex="0"
-            />
+        <div>
+            <label for="add-note">Character Sheet (path)</label>
+            <input bind:value={creature.note} id="add-note" type="text" name="note" tabindex="0" />
         </div>
     </div>
     {#if !isEditing && !Platform.isMobile}
@@ -311,28 +147,9 @@
 </div>
 
 <style>
-    .create-new > * {
-        display: grid;
-        grid-template-columns: 33% 66%;
-        margin-bottom: 0.5rem;
-    }
-    .context-buttons {
-        display: flex;
-        justify-content: flex-end;
-        align-items: center;
-        grid-gap: 0.125rem;
-    }
-    .cancel-button {
-        color: var(--text-faint);
-    }
-
-    .initiative {
-        position: relative;
-    }
-    .initiative > .dice {
-        position: absolute;
-        right: 0.25rem;
-        top: 50%;
-        transform: translateY(-50%);
-    }
+    .create-new > * { display: grid; grid-template-columns: 33% 66%; margin-bottom: 0.5rem; }
+    .context-buttons { display: flex; justify-content: flex-end; align-items: center; grid-gap: 0.125rem; }
+    .cancel-button { color: var(--text-faint); }
+    .initiative { position: relative; }
+    .initiative > .dice { position: absolute; right: 0.25rem; top: 50%; transform: translateY(-50%); }
 </style>

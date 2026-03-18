@@ -29,7 +29,7 @@
             const menu = new Menu();
             menu.addItem((item) => {
                 item.setIcon(HP)
-                    .setTitle("Set Health/Status")
+                    .setTitle("Apply Status")
                     .onClick((e: MouseEvent) => {
                         tracker.updateTarget.set("hp");
                         tracker.setUpdate(creature, e);

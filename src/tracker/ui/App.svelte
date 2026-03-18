@@ -45,7 +45,7 @@
         modal.open();
     };
     const addButton = (node: HTMLElement) => {
-        new ExtraButtonComponent(node).setTooltip("Add Creature").setIcon(ADD);
+        new ExtraButtonComponent(node).setTooltip("Add Participant").setIcon(ADD);
     };
     const copyButton = (node: HTMLElement) => {
         new ExtraButtonComponent(node)

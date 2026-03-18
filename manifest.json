@@ -1,10 +1,10 @@
 {
-    "id": "initiative-tracker",
-    "name": "Initiative Tracker",
-    "version": "13.0.18",
+    "id": "ttx-round-tracker",
+    "name": "TTX Round Tracker",
+    "version": "1.0.0",
     "minAppVersion": "0.15.0",
-    "author": "Jeremy Valentine",
-    "description": "TTRPG Initiative Tracker for Obsidian.md",
-    "authorUrl": "https://github.com/valentine195/obsidian-initiative-tracker",
+    "author": "Martin Scholz (golodhrim)",
+    "description": "Round-by-round tracker for cybersecurity tabletop exercises (TTX), based on CRM principles. Fork of javalent/initiative-tracker.",
+    "authorUrl": "https://gitlab.com/golodhrim",
     "isDesktopOnly": false
 }
