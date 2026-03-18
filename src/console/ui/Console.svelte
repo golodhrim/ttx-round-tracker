@@ -1,9 +1,61 @@
 <!-- src/console/ui/Console.svelte -->
 <script lang="ts">
     import type InitiativeTracker from "../../main";
+    import { onMount } from "svelte";
+    import { sessionStore } from "../stores/session";
+    import type { SessionConfig } from "../console.types";
+    import SessionResume from "./setup/SessionResume.svelte";
+    import SessionSetup from "./setup/SessionSetup.svelte";
+
     export let plugin: InitiativeTracker;
+
+    type Screen = "loading" | "resume" | "setup" | "sgm" | "player";
+    let screen: Screen = "loading";
+    let existingSessionPath: string | null = null;
+    let activeConfig: SessionConfig | null = null;
+
+    onMount(async () => {
+        const sessionsBase =
+            plugin.data.ttxConsoleSessionsPath + "/" +
+            new Date().toISOString().slice(0, 4) + "/.sessions";
+        existingSessionPath = await sessionStore.findTodaysSession(
+            plugin.app,
+            sessionsBase
+        );
+        screen = existingSessionPath ? "resume" : "setup";
+    });
+
+    function onResume(cfg: SessionConfig) {
+        activeConfig = cfg;
+        screen = plugin.data.ttxConsoleSGM ? "sgm" : "player";
+    }
+
+    function onConfigured(cfg: SessionConfig) {
+        activeConfig = cfg;
+        screen = plugin.data.ttxConsoleSGM ? "sgm" : "player";
+    }
 </script>
 
 <div class="ttx-console-root">
-    <p>TTX Console — loading…</p>
+    {#if screen === "loading"}
+        <p class="ttx-loading">Loading…</p>
+    {:else if screen === "resume" && existingSessionPath}
+        <SessionResume
+            {plugin}
+            existingPath={existingSessionPath}
+            {onResume}
+            onNew={() => (screen = "setup")}
+        />
+    {:else if screen === "setup"}
+        <SessionSetup {plugin} {onConfigured} />
+    {:else if screen === "sgm"}
+        <p>SGM Console — coming in Chunk 3</p>
+    {:else if screen === "player"}
+        <p>Player Console — coming in Task 7</p>
+    {/if}
 </div>
+
+<style>
+    .ttx-console-root { height: 100%; overflow: auto; }
+    .ttx-loading { padding: 1rem; color: var(--text-muted); }
+</style>
