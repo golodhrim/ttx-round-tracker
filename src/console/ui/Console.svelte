@@ -7,6 +7,7 @@
     import SessionResume from "./setup/SessionResume.svelte";
     import SessionSetup from "./setup/SessionSetup.svelte";
     import PlayerConsole from "./player/PlayerConsole.svelte";
+    import SGMConsole from "./sgm/SGMConsole.svelte";
 
     export let plugin: InitiativeTracker;
 
@@ -49,8 +50,8 @@
         />
     {:else if screen === "setup"}
         <SessionSetup {plugin} {onConfigured} />
-    {:else if screen === "sgm"}
-        <p>SGM Console — coming in Chunk 3</p>
+    {:else if screen === "sgm" && activeConfig}
+        <SGMConsole {plugin} config={activeConfig} />
     {:else if screen === "player" && activeConfig}
         <PlayerConsole
             {plugin}
