@@ -1,7 +1,7 @@
 {
     "id": "ttx-round-tracker",
     "name": "TTX Round Tracker",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "minAppVersion": "1.12.4",
     "author": "Martin Scholz (golodhrim)",
     "description": "Round-by-round tracker for cybersecurity tabletop exercises (TTX). Supports action declaration, delegation, DC setting, dice rolling, and session logging.",
