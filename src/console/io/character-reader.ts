@@ -1,5 +1,6 @@
 // src/console/io/character-reader.ts
-import type { App } from "obsidian";
+import { parseYaml } from "obsidian";
+import type { App, TFile } from "obsidian";
 import type { SessionParticipant, PlayerBonus } from "../console.types";
 
 interface RawStatblock {
@@ -42,19 +43,16 @@ function parseDelegationModifier(raw: string | undefined): number {
     return match ? parseInt(match[1], 10) : 0;
 }
 
-export async function readParticipantFromFile(
+async function readParticipantFromTFile(
     app: App,
-    folder: string,
-    filename: string
+    file: TFile
 ): Promise<SessionParticipant | null> {
-    const path = `${folder}/${filename}`;
     try {
-        const content = await app.vault.adapter.read(path);
-        // Extract ```statblock ... ``` block
-        const match = content.match(/```statblock\n([\s\S]*?)```/);
+        const content = await app.vault.read(file);
+        // Extract ```statblock ... ``` block — handle both LF and CRLF line endings
+        const match = content.match(/```statblock\r?\n([\s\S]*?)```/);
         if (!match) return null;
 
-        const { parseYaml } = await import("obsidian");
         const raw = parseYaml(match[1]) as RawStatblock;
         if (!raw?.name) return null;
 
@@ -70,27 +68,31 @@ export async function readParticipantFromFile(
     }
 }
 
+export async function readParticipantFromFile(
+    app: App,
+    folder: string,
+    filename: string
+): Promise<SessionParticipant | null> {
+    const abstract = app.vault.getAbstractFileByPath(`${folder}/${filename}`);
+    if (!abstract || abstract.constructor.name !== "TFile") return null;
+    return readParticipantFromTFile(app, abstract as TFile);
+}
+
 export async function readAllParticipants(
     app: App,
     folder: string
 ): Promise<SessionParticipant[]> {
-    try {
-        const { files } = await app.vault.adapter.list(folder);
-        const mdFiles = files.filter(
-            (f) =>
-                f.endsWith(".md") &&
-                !f.includes("Player-Template") &&
-                !f.includes("Player-Registry") &&
-                !f.includes("Player-Cards")
-        );
-        const results = await Promise.all(
-            mdFiles.map((f) => {
-                const filename = f.split("/").pop()!;
-                return readParticipantFromFile(app, folder, filename);
-            })
-        );
-        return results.filter((p): p is SessionParticipant => p !== null);
-    } catch {
-        return [];
-    }
+    // Use vault.getFiles() — works reliably with iCloud and all vault adapters
+    const mdFiles = app.vault.getFiles().filter(
+        (f) =>
+            f.path.startsWith(folder + "/") &&
+            f.extension === "md" &&
+            !f.path.includes("Player-Template") &&
+            !f.path.includes("Player-Registry") &&
+            !f.path.includes("Player-Cards")
+    );
+    const results = await Promise.all(
+        mdFiles.map((f) => readParticipantFromTFile(app, f))
+    );
+    return results.filter((p): p is SessionParticipant => p !== null);
 }

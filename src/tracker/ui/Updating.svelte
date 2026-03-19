@@ -240,7 +240,4 @@
         gap: 1rem;
         margin-right: 0.7rem;
     }
-    td > input {
-        margin: 0;
-    }
 </style>

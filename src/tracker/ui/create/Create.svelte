@@ -16,8 +16,7 @@
     import { confirmWithModal } from "./modal";
 
     let creature: Participant = new Participant({});
-    export let amount = 1;
-    export let plugin: InitiativeTracker;
+export let plugin: InitiativeTracker;
     export let adding: Writable<Array<[Participant, number]>>;
     export let editing: Writable<Participant>;
     export let isEditing: boolean;

@@ -2,7 +2,7 @@
     import { FRIENDLY, HIDDEN } from "src/utils";
     import type { Participant } from "src/utils/participant";
     import Initiative from "./Initiative.svelte";
-    import CreatureControls from "./ParticipantControls.svelte";
+    import ParticipantControls from "./ParticipantControls.svelte";
     import Status from "./Status.svelte";
     import { setIcon } from "obsidian";
     import { tracker } from "../../stores/tracker";
