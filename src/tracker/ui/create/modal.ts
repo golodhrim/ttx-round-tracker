@@ -3,7 +3,7 @@ import type InitiativeTracker from "src/main";
 import type { Participant } from "src/utils/creature";
 import Creator from "./Creator.svelte";
 export class AddCreatureModal extends Modal {
-    constructor(public plugin: InitiativeTracker, public creature?: Participant) {
+    constructor(public plugin: InitiativeTracker, public participant?: Participant) {
         super(plugin.app);
     }
     onOpen() {
@@ -12,8 +12,8 @@ export class AddCreatureModal extends Modal {
             target: this.contentEl,
             props: {
                 plugin: this.plugin,
-                ...(this.creature
-                    ? { creature: this.creature, isEditing: true }
+                ...(this.participant
+                    ? { participant: this.participant, isEditing: true }
                     : {})
             }
         }).$on("close", () => this.close());

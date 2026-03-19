@@ -46,7 +46,7 @@ export const DEFAULT_SETTINGS: InitiativeTrackerData = {
     playerMarker: "default",
     monsterMarker: "default",
     state: {
-        creatures: [],
+        participants: [],
         state: false,
         name: null,
         round: null,

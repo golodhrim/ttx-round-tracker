@@ -1,20 +1,20 @@
 <script lang="ts">
-    import { DEFAULT_UNDEFINED, FRIENDLY, HIDDEN } from "src/utils";
+    import { FRIENDLY, HIDDEN } from "src/utils";
     import type { Participant } from "src/utils/creature";
     import Initiative from "./Initiative.svelte";
     import CreatureControls from "./CreatureControls.svelte";
     import Status from "./Status.svelte";
-    import { Platform, setIcon } from "obsidian";
+    import { setIcon } from "obsidian";
     import { tracker } from "../../stores/tracker";
     import { createEventDispatcher } from "svelte";
 
     const dispatch = createEventDispatcher();
 
-    export let creature: Participant;
-    $: statuses = creature.status;
+    export let participant: Participant;
+    $: statuses = participant.status;
 
-    const name = () => creature.getName();
-    const statblockLink = () => creature.getStatblockLink();
+    const name = () => participant.getName();
+    const statblockLink = () => participant.getStatblockLink();
     const hiddenIcon = (div: HTMLElement) => {
         setIcon(div, HIDDEN);
     };
@@ -25,28 +25,25 @@
     let hoverTimeout: NodeJS.Timeout = null;
     const tryHover = (evt: MouseEvent) => {
         hoverTimeout = setTimeout(() => {
-            if (creature["statblock-link"]) {
+            if (participant["statblock-link"]) {
                 let link = statblockLink();
                 if (/\[.+\]\(.+\)/.test(link)) {
-                    //md
                     [, link] = link.match(/\[.+?\]\((.+?)\)/);
                 } else if (/\[\[.+\]\]/.test(link)) {
-                    //wiki
                     [, link] = link.match(/\[\[(.+?)(?:\|.+?)?\]\]/);
                 }
-
                 app.workspace.trigger(
                     "link-hover",
-                    {}, //hover popover, but don't need
-                    evt.target, //targetEl
-                    link, //linkText
-                    "initiative-tracker " //source
+                    {},
+                    evt.target,
+                    link,
+                    "initiative-tracker "
                 );
             }
         }, 1000);
     };
 
-    const cancelHover = (evt: MouseEvent) => {
+    const cancelHover = (_evt: MouseEvent) => {
         clearTimeout(hoverTimeout);
     };
 </script>
@@ -54,12 +51,12 @@
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <td class="initiative-container" on:click={(e) => e.stopPropagation()}>
     <Initiative
-        initiative={creature.initiative}
-        modifier={[creature.modifier].flat().reduce((a, b) => a + b, 0)}
+        initiative={participant.initiative}
+        modifier={[participant.modifier].flat().reduce((a, b) => a + b, 0)}
         on:click={(e) => e.stopPropagation()}
         on:initiative={(e) => {
-            tracker.updateCreatures({
-                creature,
+            tracker.updateParticipants({
+                participant,
                 change: { initiative: Number(e.detail) }
             });
         }}
@@ -69,20 +66,18 @@
     <!-- svelte-ignore a11y-click-events-have-key-events -->
     <div
         class="name-holder"
-        on:click|stopPropagation={(evt) => {
-            dispatch("open-combatant", creature);
-        }}
+        on:click|stopPropagation={() => dispatch("open-combatant", participant)}
         on:mouseenter={tryHover}
         on:mouseleave={cancelHover}
     >
-        {#if creature.hidden}
+        {#if participant.hidden}
             <div class="centered-icon" use:hiddenIcon />
         {/if}
-        {#if creature.friendly}
+        {#if participant.friendly}
             <div class="centered-icon" use:friendlyIcon />
         {/if}
-        {#if creature.player}
-            <strong class="name player">{creature.name}</strong>
+        {#if participant.player}
+            <strong class="name player">{participant.name}</strong>
         {:else}
             <span class="name">{name()}</span>
         {/if}
@@ -94,8 +89,8 @@
                 <Status
                     {status}
                     on:remove={() => {
-                        tracker.updateCreatures({
-                            creature,
+                        tracker.updateParticipants({
+                            participant,
                             change: { remove_status: [status] }
                         });
                     }}
@@ -105,16 +100,12 @@
     </div>
 </td>
 
-<td class="center ac-container" class:mobile={Platform.isMobile} aria-label="Role Modifier">
-    <div>{creature.ac ? creature.ac : DEFAULT_UNDEFINED}</div>
-</td>
-
 <td class="controls-container">
     <CreatureControls
         on:click={(e) => e.stopPropagation()}
         on:tag
         on:edit
-        {creature}
+        {participant}
     />
 </td>
 
@@ -138,15 +129,11 @@
         height: unset;
         word-break: keep-all;
     }
-    .center {
-        text-align: center;
-    }
     .statuses {
         display: flex;
         flex-flow: row wrap;
         column-gap: 0.25rem;
     }
-
     .initiative-container {
         border-top-left-radius: 0.25rem;
         border-bottom-left-radius: 0.25rem;
@@ -154,8 +141,5 @@
     .controls-container {
         border-top-right-radius: 0.25rem;
         border-bottom-right-radius: 0.25rem;
-    }
-    .mobile {
-        font-size: smaller;
     }
 </style>

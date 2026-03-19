@@ -1,7 +1,7 @@
 import type { CreatureState, HomebrewCreature } from "src/types/creatures";
 
 export interface InitiativeViewState {
-    participants: CreatureState[];
+    creatures: CreatureState[];
     state: boolean;
     name: string;
     round: number;
@@ -10,7 +10,7 @@ export interface InitiativeViewState {
     rollHP?: boolean;
     timestamp?: number;
 }export interface InitiativeViewState {
-    participants: CreatureState[];
+    creatures: CreatureState[];
     state: boolean;
     name: string;
     round: number;

@@ -26,7 +26,7 @@ export default class TrackerView extends ItemView {
 
     constructor(public leaf: WorkspaceLeaf, public plugin: InitiativeTracker) {
         super(leaf);
-        if (this.plugin.data.state?.participants?.length) {
+        if (this.plugin.data.state?.creatures?.length) {
         } else {
         }
     }
@@ -128,9 +128,9 @@ export class CreatureView extends ItemView {
     onunload(): void {
         this.app.workspace.trigger("initiative-tracker:stop-viewing");
     }
-    async render(participant?: Participant) {
+    async render(creature?: Participant) {
         this.statblockEl.empty();
-        if (!participant) {
+        if (!creature) {
             this.statblockEl.createEl("em", {
                 text: "Select a creature to view it here."
             });
@@ -138,16 +138,16 @@ export class CreatureView extends ItemView {
         }
 
         if (
-            participant["statblock-link"] &&
+            creature["statblock-link"] &&
             (this.plugin.data.preferStatblockLink ||
                 !this.plugin.canUseStatBlocks)
         ) {
-            await this.renderEmbed(participant.getStatblockLink());
+            await this.renderEmbed(creature.getStatblockLink());
         } else if (this.plugin.canUseStatBlocks) {
             const statblock = window.FantasyStatblocks.render(
-                participant.participantData,
+                creature.creature,
                 this.statblockEl,
-                participant.display
+                creature.display
             );
             this.addChild(statblock);
         } else {

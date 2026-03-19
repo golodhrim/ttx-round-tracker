@@ -8,7 +8,7 @@ import type { UpdateLogMessage } from "./logger.types";
 export interface LogState {
     name?: string;
     players: Participant[];
-    participants: Participant[];
+    creatures: Participant[];
     round: number;
 }
 
@@ -93,18 +93,18 @@ export default class Logger {
             await this.log("## Participants");
             await this.log("| Participant | Initiative | Statuses |");
             await this.log("| --- | :-: | :-: |");
-            for (const participant of param.participants.sort(
+            for (const creature of param.creatures.sort(
                 (a, b) => b.initiative - a.initiative
             )) {
                 await this.log(
                     "|",
-                    participant.getName().replace("|", "\\|"),
+                    creature.getName().replace("|", "\\|"),
                     "|",
-                    participant.initiative.toString(),
+                    creature.initiative.toString(),
                     "|",
                     [
-                        ...(participant.status.size
-                            ? [...participant.status].map((c) => c.name)
+                        ...(creature.status.size
+                            ? [...creature.status].map((c) => c.name)
                             : ["-"])
                     ]
                         .join(", ")
@@ -116,7 +116,7 @@ export default class Logger {
             await this.log("\n\n## Combat Log");
             await this.log("\n### Round 1");
             await this.log(
-                `\n##### ${tracker.getOrderedParticipants()[0].getName()}'s turn`
+                `\n##### ${tracker.getOrderedCreatures()[0].getName()}'s turn`
             );
         }
     }
@@ -139,17 +139,17 @@ export default class Logger {
     logUpdate(messages: UpdateLogMessage[]) {
         const toLog: string[] = [];
         for (const message of messages) {
-            const perParticipant: string[] = [];
+            const perCreature: string[] = [];
             if (message.hp) {
                 if (message.temp) {
-                    perParticipant.push(
+                    perCreature.push(
                         `${message.name} gained ${(
                             -1 * message.hp
                         ).toString()} temporary HP`
                     );
                 } else if (message.max) {
                     if (message.hp < 0) {
-                        perParticipant.push(
+                        perCreature.push(
                             `${message.name} took ${(
                                 -1 * message.hp
                             ).toString()} max HP damage${
@@ -157,14 +157,14 @@ export default class Logger {
                             }`
                         );
                     } else {
-                        perParticipant.push(
+                        perCreature.push(
                             `${
                                 message.name
                             } gained ${message.hp.toString()} max HP`
                         );
                     }
                 } else if (message.hp < 0) {
-                    perParticipant.push(
+                    perCreature.push(
                         `${message.name} took ${(
                             -1 * message.hp
                         ).toString()} damage${
@@ -172,7 +172,7 @@ export default class Logger {
                         }`
                     );
                 } else if (message.hp > 0) {
-                    perParticipant.push(
+                    perCreature.push(
                         `${
                             message.name
                         } was healed for ${message.hp.toString()} HP`
@@ -180,18 +180,18 @@ export default class Logger {
                 }
             }
             if (message.ac) {
-                if (perParticipant.length && !message.status) {
-                    perParticipant.push("and");
-                } else if (perParticipant.length) {
-                    perParticipant.push(",");
+                if (perCreature.length && !message.status) {
+                    perCreature.push("and");
+                } else if (perCreature.length) {
+                    perCreature.push(",");
                 }
 
                 if (message.ac_add) {
-                    perParticipant.push(
+                    perCreature.push(
                         `${message.name} added ${message.ac} to AC`
                     );
                 } else {
-                    perParticipant.push(
+                    perCreature.push(
                         `${message.name} AC set to ${
                             message.ac ? message.ac : "be blank"
                         }`
@@ -199,10 +199,10 @@ export default class Logger {
                 }
             }
             if (message.status) {
-                if (perParticipant.length) {
-                    perParticipant.push("and");
+                if (perCreature.length) {
+                    perCreature.push("and");
                 } else {
-                    perParticipant.push(message.name);
+                    perCreature.push(message.name);
                 }
                 let status;
                 if (message.status.length > 1) {
@@ -216,16 +216,16 @@ export default class Logger {
                     status = [message.status[0]];
                 }
                 if (message.saved) {
-                    perParticipant.push(`saved against ${status.join(" and ")}`);
+                    perCreature.push(`saved against ${status.join(" and ")}`);
                 } else {
-                    perParticipant.push(`took ${status.join(" and ")} status`);
+                    perCreature.push(`took ${status.join(" and ")} status`);
                 }
             }
             if (message.remove_status) {
-                if (perParticipant.length) {
-                    perParticipant.push("and");
+                if (perCreature.length) {
+                    perCreature.push("and");
                 } else {
-                    perParticipant.push(message.name);
+                    perCreature.push(message.name);
                 }
                 let status;
                 if (message.remove_status.length > 1) {
@@ -238,9 +238,9 @@ export default class Logger {
                 } else {
                     status = [message.remove_status[0]];
                 }
-                perParticipant.push(`relieved of ${status.join(" and ")} status`);
+                perCreature.push(`relieved of ${status.join(" and ")} status`);
             }
-            toLog.push(perParticipant.join(" "));
+            toLog.push(perCreature.join(" "));
         }
         this.log(`${toLog.join(". ")}.`);
     }

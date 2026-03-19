@@ -4,7 +4,6 @@
         DISABLE,
         ENABLE,
         HIDDEN,
-        HP,
         REMOVE,
         TAG
     } from "src/utils";
@@ -16,7 +15,7 @@
 
     const dispatch = createEventDispatcher();
 
-    export let creature: Participant;
+    export let participant: Participant;
 
     const plugin = getContext<InitiativeTracker>("plugin");
 
@@ -28,37 +27,26 @@
             evt.stopPropagation();
             const menu = new Menu();
             menu.addItem((item) => {
-                item.setIcon(HP)
+                item.setIcon(TAG)
                     .setTitle("Apply Status")
                     .onClick((e: MouseEvent) => {
-                        tracker.updateTarget.set("hp");
-                        tracker.setUpdate(creature, e);
+                        tracker.setUpdate(participant, e);
                     });
             });
-            if (creature.current_ac != creature.ac) {
-                menu.addItem((item) => {
-                    item.setIcon(HP)
-                        .setTitle("Reset AC")
-                        .onClick((e: MouseEvent) => {
-                            creature.current_ac = creature.ac;
-                            tracker.updateAndSave();
-                        });
-                });
-            }
             menu.addItem((item) => {
                 item.setIcon("pencil")
                     .setTitle("Edit")
                     .onClick(() => {
-                        dispatch("edit", creature);
+                        dispatch("edit", participant);
                     });
             });
-            if (creature.hidden) {
+            if (participant.hidden) {
                 menu.addItem((item) => {
                     item.setIcon("eye")
                         .setTitle("Show")
                         .onClick(() => {
-                            tracker.updateCreatures({
-                                creature,
+                            tracker.updateParticipants({
+                                participant,
                                 change: { hidden: false }
                             });
                         });
@@ -68,20 +56,20 @@
                     item.setIcon(HIDDEN)
                         .setTitle("Hide")
                         .onClick(() => {
-                            tracker.updateCreatures({
-                                creature,
+                            tracker.updateParticipants({
+                                participant,
                                 change: { hidden: true }
                             });
                         });
                 });
             }
-            if (creature.enabled) {
+            if (participant.enabled) {
                 menu.addItem((item) => {
                     item.setIcon(DISABLE)
                         .setTitle("Disable")
                         .onClick(() => {
-                            tracker.updateCreatures({
-                                creature,
+                            tracker.updateParticipants({
+                                participant,
                                 change: { enabled: false }
                             });
                         });
@@ -91,8 +79,8 @@
                     item.setIcon(ENABLE)
                         .setTitle("Enable")
                         .onClick(() => {
-                            tracker.updateCreatures({
-                                creature,
+                            tracker.updateParticipants({
+                                participant,
                                 change: { enabled: true }
                             });
                         });
@@ -102,7 +90,7 @@
                 item.setIcon(REMOVE)
                     .setTitle("Remove")
                     .onClick(() => {
-                        tracker.remove(creature);
+                        tracker.remove(participant);
                     });
             });
             menu.showAtPosition(evt);

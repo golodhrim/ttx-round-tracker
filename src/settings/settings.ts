@@ -471,12 +471,12 @@ export default class InitiativeTrackerSettings extends PluginSettingTab {
                     .setDesc(
                         createFragment((e) => {
                             const players = [],
-                                creatures = [];
-                            for (const creature of encounter.creatures) {
-                                if (creature.player) {
-                                    players.push(creature.name);
+                                nonPlayers = [];
+                            for (const participant of encounter.participants) {
+                                if (participant.player) {
+                                    players.push(participant.name);
                                 } else {
-                                    creatures.push(creature.name);
+                                    nonPlayers.push(participant.name);
                                 }
                             }
 
@@ -486,9 +486,9 @@ export default class InitiativeTrackerSettings extends PluginSettingTab {
                                 });
                                 e.createEl("br");
                             }
-                            if (creatures.length) {
+                            if (nonPlayers.length) {
                                 e.createSpan({
-                                    text: `Creatures: ${creatures.join(", ")}`
+                                    text: `Participants: ${nonPlayers.join(", ")}`
                                 });
                                 e.createEl("br");
                             }

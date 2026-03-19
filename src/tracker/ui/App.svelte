@@ -39,8 +39,8 @@
 
     let saving = false;
     let loading = false;
-    const editOrAdd = (creature?: Participant) => {
-        const modal = new AddCreatureModal(plugin, creature);
+    const editOrAdd = (participant?: Participant) => {
+        const modal = new AddCreatureModal(plugin, participant);
         modal.onClose = () => {};
         modal.open();
     };
@@ -54,7 +54,7 @@
             .onClick(async () => {
                 const contents = $ordered
                     .map(
-                        (creature) => `${creature.initiative} ${creature.name}`
+                        (participant) => `${participant.initiative} ${participant.name}`
                     )
                     .join("\n");
                 try {

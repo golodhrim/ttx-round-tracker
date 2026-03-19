@@ -12,12 +12,10 @@
 
     export let plugin: InitiativeTracker;
     export let isEditing = false;
-    export let creature: Participant = null;
-
-    let rollHP = plugin.data.rollHP;
+    export let participant: Participant = null;
 
     const adding = writable<Array<[Participant, number]>>([]);
-    const editing = writable<Participant>(creature);
+    const editing = writable<Participant>(participant);
 
     const cancel = (node: HTMLElement) => {
         new ButtonComponent(node)
@@ -34,34 +32,34 @@
             .onClick(async () => {
                 if (!$adding.length && !isEditing && !Platform.isMobile) return;
                 if (isEditing) {
-                    if ($editing.hp != creature.max) {
-                        creature.max = creature.current_max = $editing.hp;
+                    if ($editing.hp != participant.max) {
+                        participant.max = participant.current_max = $editing.hp;
                     }
-                    if (creature.dirty_ac) {
-                        creature.current_ac = $editing.ac;
-                        creature.dirty_ac = false;
+                    if (participant.dirty_ac) {
+                        participant.current_ac = $editing.ac;
+                        participant.dirty_ac = false;
                     }
 
-                    tracker.replace(creature, $editing);
+                    tracker.replace(participant, $editing);
                 } else {
-                    const creatures = $adding.flatMap(([creature, amount]) => {
-                        return [...Array(amount).keys()].map((k) =>
-                            Participant.new(creature)
+                    const participants = $adding.flatMap(([p, amount]) => {
+                        return [...Array(amount).keys()].map(() =>
+                            Participant.new(p)
                         );
                     });
 
-                    tracker.add(plugin, rollHP, ...creatures);
+                    tracker.add(plugin, false, ...participants);
                 }
-                if (creature?.player && creature?.path) {
+                if (participant?.player && participant?.path) {
                     const file = await plugin.app.vault.getAbstractFileByPath(
-                        creature.path
+                        participant.path
                     );
                     if (file && file instanceof TFile)
                         plugin.app.fileManager.processFrontMatter(file, (f) => {
-                            f.ac = creature.ac;
-                            f.hp = creature.max;
-                            f.level = creature.level;
-                            f.modifier = creature.modifier;
+                            f.ac = participant.ac;
+                            f.hp = participant.max;
+                            f.level = participant.level;
+                            f.modifier = participant.modifier;
                         });
                 }
                 dispatch("close");
@@ -80,16 +78,7 @@
         <Create {plugin} {editing} {adding} {isEditing} />
         {#if !isEditing && !Platform.isMobile}
             <div class="creator-list">
-                <List {adding} {editing} {rollHP} />
-                <div>
-                    <input
-                        type="checkbox"
-                        name="roll-hp"
-                        id="roll-hp"
-                        bind:checked={rollHP}
-                    />
-                    <label for="roll-hp">Roll for HP</label>
-                </div>
+                <List {adding} {editing} />
             </div>
         {/if}
     </div>

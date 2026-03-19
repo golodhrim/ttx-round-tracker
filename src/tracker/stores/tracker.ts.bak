@@ -31,7 +31,7 @@ type HPUpdate = {
     resist: boolean;
     customMod: "2" | "1";
 };
-type ParticipantUpdate = {
+type CreatureUpdate = {
     hp?: number;
     ac?: number | string;
     current_ac?: number | string;
@@ -48,13 +48,13 @@ type ParticipantUpdate = {
     set_hp?: number;
     set_max_hp?: number;
 };
-type ParticipantUpdates = { participant: Participant; change: ParticipantUpdate };
+type CreatureUpdates = { creature: Participant; change: CreatureUpdate };
 const modifier = Platform.isMacOS ? "Meta" : "Control";
 function createTracker() {
-    const participants = writable<Participant[]>([]);
+    const creatures = writable<Participant[]>([]);
     const updating = writable<Map<Participant, HPUpdate>>(new Map());
     const updateTarget = writable<"ac" | "hp">();
-    const { subscribe, set, update } = participants;
+    const { subscribe, set, update } = creatures;
 
     const $logFile = writable<TFile | null>();
 
@@ -70,7 +70,7 @@ function createTracker() {
                     ?.new({
                         name: get($name)!,
                         players: current_order.filter((c) => c.player),
-                        participants: current_order.filter((c) => !c.player),
+                        creatures: current_order.filter((c) => !c.player),
                         round: get($round)
                     })
                     .then(() => {
@@ -82,11 +82,11 @@ function createTracker() {
         } else {
             _logger?.log("Combat stopped");
         }
-        updateAndSave((participants) => {
-            if (participants.length && !participants.find((c) => c.active)) {
+        updateAndSave((creatures) => {
+            if (creatures.length && !creatures.find((c) => c.active)) {
                 current_order[0].active = true;
             }
-            return participants;
+            return creatures;
         });
     };
     const $name = writable<string | null>();
@@ -98,7 +98,7 @@ function createTracker() {
     });
     let _settings: InitiativeTrackerData | null;
     
-    const condensed = derived(participants, (values) => {
+    const condensed = derived(creatures, (values) => {
         if (_settings?.condense) {
             values.forEach((creature, _, arr) => {
                 const equiv = arr.filter((c) => equivalent(c, creature));
@@ -118,7 +118,7 @@ function createTracker() {
     const ordered = derived([condensed, data], ([values, data]) => {
         const sort = [...values];
         sort.sort((a, b) => {
-            /* Order participants in this order:
+            /* Order creatures in this order:
                1. By initiative
                2. By manual order (drag & drop)
                3. According to the resolveTies setting */
@@ -157,46 +157,46 @@ function createTracker() {
         return sort;
     });
 
-    const logNewInitiative = (participant: Participant) => {
+    const logNewInitiative = (creature: Participant) => {
         _logger?.log(
-            `${participant.getName()} initiative changed to ${participant.initiative}`
+            `${creature.getName()} initiative changed to ${creature.initiative}`
         );
     };
 
-    const performParticipantUpdate = (
-        participants: Participant[],
-        ...updates: ParticipantUpdates[]
+    const performCreatureUpdate = (
+        creatures: Participant[],
+        ...updates: CreatureUpdates[]
     ) => {
-        for (const { participant, change } of updates) {
+        for (const { creature, change } of updates) {
             if (change.initiative) {
-                participant.initiative = Number(change.initiative);
-                logNewInitiative(participant);
+                creature.initiative = Number(change.initiative);
+                logNewInitiative(creature);
             }
             if (change.name) {
-                participant.name = change.name;
-                participant.number = 0;
+                creature.name = change.name;
+                creature.number = 0;
             }
             if (change.hp) {
                 // Reduce temp HP first
                 change.hp = Number(change.hp);
-                if (change.hp < 0 && participant.temp > 0) {
-                    const remaining = participant.temp + change.hp;
-                    participant.temp = Math.max(0, remaining);
+                if (change.hp < 0 && creature.temp > 0) {
+                    const remaining = creature.temp + change.hp;
+                    creature.temp = Math.max(0, remaining);
                     change.hp = Math.min(0, remaining);
                 }
                 // Clamp HP at 0 if clamp is enabled in settings
-                if (_settings.clamp && participant.hp + change.hp < 0) {
-                    change.hp = -participant.hp;
+                if (_settings.clamp && creature.hp + change.hp < 0) {
+                    change.hp = -creature.hp;
                 }
                 // Handle overflow healing according to settings
                 if (
                     change.hp > 0 &&
-                    change.hp + participant.hp > participant.current_max
+                    change.hp + creature.hp > creature.current_max
                 ) {
                     switch (_settings.hpOverflow) {
                         case OVERFLOW_TYPE.ignore:
                             change.hp = Math.max(
-                                participant.current_max - participant.hp,
+                                creature.current_max - creature.hp,
                                 0
                             );
                             break;
@@ -204,99 +204,99 @@ function createTracker() {
                             // Gives temp a value, such that it will be set later
                             change.temp =
                                 change.hp -
-                                Math.min(participant.current_max - participant.hp, 0);
+                                Math.min(creature.current_max - creature.hp, 0);
                             change.hp -= change.temp;
                             break;
                         case OVERFLOW_TYPE.current:
                             break;
                     }
                 }
-                participant.hp += change.hp;
-                if (_settings.autoStatus && participant.hp <= 0) {
+                creature.hp += change.hp;
+                if (_settings.autoStatus && creature.hp <= 0) {
                     const unc = _settings.statuses.find(
                         (s) => s.id == _settings.unconsciousId
                     );
-                    if (unc) participant.addCondition(unc);
+                    if (unc) creature.addCondition(unc);
                 }
             }
             if (change.max) {
-                participant.current_max = Math.max(
+                creature.current_max = Math.max(
                     0,
-                    participant.current_max + change.max
+                    creature.current_max + change.max
                 );
                 if (
-                    participant.hp >= participant.current_max &&
+                    creature.hp >= creature.current_max &&
                     _settings.hpOverflow !== OVERFLOW_TYPE.current
                 ) {
-                    participant.hp = participant.current_max;
+                    creature.hp = creature.current_max;
                 }
             }
             if (change.set_hp) {
-                participant.hp = change.set_hp;
+                creature.hp = change.set_hp;
             }
             if (change.set_max_hp) {
-                participant.current_max = participant.max = change.set_max_hp;
+                creature.current_max = creature.max = change.set_max_hp;
             }
             if (change.ac) {
-                participant.current_ac = participant.ac = change.ac;
+                creature.current_ac = creature.ac = change.ac;
             }
             if (change.temp) {
                 let baseline = 0;
                 if (_settings.additiveTemp) {
-                    baseline = participant.temp;
+                    baseline = creature.temp;
                 }
                 if (change.temp > 0) {
-                    participant.temp = Math.max(
-                        participant.temp,
+                    creature.temp = Math.max(
+                        creature.temp,
                         baseline + change.temp
                     );
                 } else {
-                    participant.temp = Math.max(0, participant.temp + change.temp);
+                    creature.temp = Math.max(0, creature.temp + change.temp);
                 }
             }
             if (change.marker) {
-                participant.marker = change.marker;
+                creature.marker = change.marker;
             }
             if (change.status?.length) {
                 for (const status of change.status) {
-                    participant.addCondition(status);
+                    creature.addCondition(status);
                 }
             }
             if (change.remove_status?.length) {
                 for (const status of change.remove_status) {
-                    participant.removeCondition(status);
+                    creature.removeCondition(status);
                 }
             }
             if ("hidden" in change) {
-                participant.hidden = change.hidden!;
+                creature.hidden = change.hidden!;
                 _logger.log(
-                    `${participant.getName()} ${
-                        participant.hidden ? "hidden" : "revealed"
+                    `${creature.getName()} ${
+                        creature.hidden ? "hidden" : "revealed"
                     }`
                 );
             }
             if ("enabled" in change) {
-                participant.enabled = change.enabled!;
+                creature.enabled = change.enabled!;
                 _logger.log(
-                    `${participant.getName()} ${
-                        participant.enabled ? "enabled" : "disabled"
+                    `${creature.getName()} ${
+                        creature.enabled ? "enabled" : "disabled"
                     }`
                 );
             }
-            if (!participants.includes(participant)) {
-                participants.push(participant);
+            if (!creatures.includes(creature)) {
+                creatures.push(creature);
             }
         }
-        return participants;
+        return creatures;
     };
-    const updateParticipants = (...updates: ParticipantUpdates[]) =>
-        updateAndSave((participants) => {
-            return performParticipantUpdate(participants, ...updates);
+    const updateCreatures = (...updates: CreatureUpdates[]) =>
+        updateAndSave((creatures) => {
+            return performCreatureUpdate(creatures, ...updates);
         });
 
     const getEncounterState = (): InitiativeViewState => {
         return {
-            participants: get(participants).map((c) => c.toJSON()),
+            creatures: get(creatures).map((c) => c.toJSON()),
             state: get($state),
             name: get($name)!,
             round: get($round),
@@ -319,53 +319,53 @@ function createTracker() {
 
     const setNumbers = (list: Participant[]) => {
         for (let i = 0; i < list.length; i++) {
-            const participant = list[i];
+            const creature = list[i];
             if (
-                participant.player ||
-                list.filter((c) => c.name == participant.name).length == 1
+                creature.player ||
+                list.filter((c) => c.name == creature.name).length == 1
             ) {
                 continue;
             }
-            if (participant.number > 0) continue;
+            if (creature.number > 0) continue;
             const prior = list
                 .filter((c) =>
                     c.display
-                        ? c.display == participant.display
-                        : c.name == participant.name
+                        ? c.display == creature.display
+                        : c.name == creature.name
                 )
                 .map((c) => c.number);
 
-            participant.number = prior?.length ? Math.max(...prior) + 1 : 1;
+            creature.number = prior?.length ? Math.max(...prior) + 1 : 1;
         }
     };
 
     function rollIntiative(
         plugin: InitiativeTracker,
-                participants: Participant[]
+                creatures: Participant[]
     ): Participant[] {
-        for (let participant of participants) {
-            if (participant.static && participant.initiative) continue;
-            participant.active = false;
+        for (let creature of creatures) {
+            if (creature.static && creature.initiative) continue;
+            creature.active = false;
             if (
-                participant.player &&
+                creature.player &&
                 plugin.data.rollPlayerInitiatives ==
                     RollPlayerInitiativeBehavior.Never
             )
                 continue;
             if (
-                participant.player &&
+                creature.player &&
                 plugin.data.rollPlayerInitiatives ==
                     RollPlayerInitiativeBehavior.SetToZero
             ) {
-                participant.initiative = 0;
+                creature.initiative = 0;
             } else {
-                participant.initiative = plugin.getInitiativeValue(
-                    participant.modifier
+                creature.initiative = plugin.getInitiativeValue(
+                    creature.modifier
                 );
             }
-            participant.manualOrder = null;
+            creature.manualOrder = null;
         }
-        return participants;
+        return creatures;
     }
 
     return {
@@ -386,69 +386,69 @@ function createTracker() {
 
         updating,
         updateTarget,
-        updateParticipants,
-        updateParticipantByName: (name: string, change: ParticipantUpdate) =>
-            updateAndSave((participants) => {
-                const participant = participants.find((c) => c.name == name);
-                if (participant) {
+        updateCreatures,
+        updateCreatureByName: (name: string, change: CreatureUpdate) =>
+            updateAndSave((creatures) => {
+                const creature = creatures.find((c) => c.name == name);
+                if (creature) {
                     if (!isNaN(Number(change.hp))) {
-                        participant.hp = change.hp;
+                        creature.hp = change.hp;
                     }
                     if (change.max) {
-                        participant.current_max = Math.max(
+                        creature.current_max = Math.max(
                             0,
-                            participant.current_max + change.max
+                            creature.current_max + change.max
                         );
                         if (
-                            participant.hp >= participant.current_max &&
+                            creature.hp >= creature.current_max &&
                             _settings.hpOverflow !== OVERFLOW_TYPE.current
                         ) {
-                            participant.hp = participant.current_max;
+                            creature.hp = creature.current_max;
                         }
                     }
                     if (change.temp) {
                         let baseline = 0;
                         if (_settings.additiveTemp) {
-                            baseline = participant.temp;
+                            baseline = creature.temp;
                         }
                         if (change.temp > 0) {
-                            participant.temp = Math.max(
-                                participant.temp,
+                            creature.temp = Math.max(
+                                creature.temp,
                                 baseline + change.temp
                             );
                         } else {
-                            participant.temp = Math.max(
+                            creature.temp = Math.max(
                                 0,
-                                participant.temp + change.temp
+                                creature.temp + change.temp
                             );
                         }
                     }
                     if (change.marker) {
-                        participant.marker = change.marker;
+                        creature.marker = change.marker;
                     }
                     if (
                         typeof change.ac == "string" ||
                         !isNaN(Number(change.ac))
                     ) {
-                        participant.ac = participant.current_ac = change.ac;
+                        creature.ac = creature.current_ac = change.ac;
                     }
                     if (
                         typeof change.current_ac == "string" ||
                         !isNaN(Number(change.current_ac))
                     ) {
-                        participant.current_ac = change.ac;
+                        creature.current_ac = change.ac;
                     }
                     if (!isNaN(Number(change.initiative))) {
-                        participant.initiative = change.initiative;
+                        creature.initiative = change.initiative;
                     }
                     if (typeof change.name == "string") {
-                        participant.name = change.name;
+                        creature.name = change.name;
                     }
                     if ("hidden" in change) {
-                        participant.hidden = change.hidden;
+                        creature.hidden = change.hidden;
                     }
                     if ("enabled" in change) {
-                        participant.enabled = change.enabled;
+                        creature.enabled = change.enabled;
                     }
                     if (Array.isArray(change.status) && change.status?.length) {
                         for (const status of change.status) {
@@ -460,36 +460,36 @@ function createTracker() {
                                     description: "",
                                     id: getId()
                                 };
-                                participant.addCondition(cond);
+                                creature.addCondition(cond);
                             } else if (
                                 typeof status == "object" &&
                                 status.name?.length
                             ) {
-                                participant.addCondition(status as Condition);
+                                creature.addCondition(status as Condition);
                             }
                         }
                     }
                 }
 
-                return participants;
+                return creatures;
             }),
 
-        players: derived(ordered, (participants) =>
-            participants.filter((c) => c.player)
+        players: derived(ordered, (creatures) =>
+            creatures.filter((c) => c.player)
         ),
 
-        setUpdate: (participant: Participant, evt: MouseEvent) =>
-            updating.update((updatingMap) => {
-                if (updatingMap.has(participant)) {
-                    updatingMap.delete(participant);
+        setUpdate: (creature: Participant, evt: MouseEvent) =>
+            updating.update((creatures) => {
+                if (creatures.has(creature)) {
+                    creatures.delete(creature);
                 } else {
-                    updatingMap.set(participant, {
+                    creatures.set(creature, {
                         saved: evt.getModifierState("Shift"),
                         resist: evt.getModifierState(modifier),
                         customMod: evt.getModifierState("Alt") ? "2" : "1"
                     });
                 }
-                return updatingMap;
+                return creatures;
             }),
         doUpdate: (
             toAddString: string,
@@ -499,18 +499,18 @@ function createTracker() {
         ) =>
             updating.update((updatingCreatures) => {
                 const messages: UpdateLogMessage[] = [];
-                const updates: ParticipantUpdates[] = [];
+                const updates: CreatureUpdates[] = [];
 
-                updatingCreatures.forEach((entry, participant) => {
+                updatingCreatures.forEach((entry, creature) => {
                     const roundHalf = !toAddString.includes(".");
-                    const change: ParticipantUpdate = {};
+                    const change: CreatureUpdate = {};
                     const modifier =
                         (entry.saved ? 0.5 : 1) *
                         (entry.resist ? 0.5 : 1) *
                         Number(entry.customMod);
-                    const name = [participant.name];
-                    if (participant.number > 0) {
-                        name.push(`${participant.number}`);
+                    const name = [creature.name];
+                    if (creature.number > 0) {
+                        name.push(`${creature.number}`);
                     }
                     const message: UpdateLogMessage = {
                         name: name.join(" "),
@@ -544,7 +544,7 @@ function createTracker() {
                             change.max = toAdd;
                         }
                         change.hp = toAdd;
-                        if (participant.hp <= 0) {
+                        if (creature.hp <= 0) {
                             message.unc = true;
                         }
                     }
@@ -562,26 +562,26 @@ function createTracker() {
                     if (ac) {
                         if (ac.charAt(0) == "+" || ac.charAt(0) == "-") {
                             const current_ac = parseInt(
-                                String(participant.current_ac)
+                                String(creature.current_ac)
                             );
                             if (isNaN(current_ac)) {
-                                participant.current_ac = participant.current_ac + ac;
+                                creature.current_ac = creature.current_ac + ac;
                             } else {
-                                participant.current_ac = current_ac + parseInt(ac);
+                                creature.current_ac = current_ac + parseInt(ac);
                             }
                             message.ac_add = true;
                         } else {
-                            participant.current_ac = ac.slice(
+                            creature.current_ac = ac.slice(
                                 Number(ac.charAt(0) == "\\")
                             );
                         }
                         message.ac = ac.slice(Number(ac.charAt(0) == "\\"));
                     }
                     messages.push(message);
-                    updates.push({ participant, change });
+                    updates.push({ creature, change });
                 });
                 _logger?.logUpdate(messages);
-                updateParticipants(...updates);
+                updateCreatures(...updates);
                 updatingCreatures.clear();
                 return updatingCreatures;
             }),
@@ -599,11 +599,11 @@ function createTracker() {
 
         party: $party,
         setParty: (party: string, plugin: InitiativeTracker) =>
-            updateAndSave((participants) => {
+            updateAndSave((creatures) => {
                 const players = plugin.getPlayersForParty(party);
                 $party.set(party);
-                participants = [...participants.filter((c) => !c.player), ...players];
-                return participants;
+                creatures = [...creatures.filter((c) => !c.player), ...players];
+                return creatures;
             }),
 
         state: $state,
@@ -614,7 +614,7 @@ function createTracker() {
         setState,
 
         goToNext: () =>
-            updateAndSave((participants) => {
+            updateAndSave((creatures) => {
                 const current = current_order.findIndex((c) => {
                     return c.active;
                 });
@@ -640,9 +640,9 @@ function createTracker() {
                             const round = get($round) + 1;
                             $round.set(round);
 
-                            for (const participant of participants) {
-                                participant.status = new Set(
-                                    [...participant.status].filter(
+                            for (const creature of creatures) {
+                                creature.status = new Set(
+                                    [...creature.status].filter(
                                         (s) => !s.resetOnRound
                                     )
                                 );
@@ -654,14 +654,14 @@ function createTracker() {
                         next.active = true;
                     }
                 }
-                return participants;
+                return creatures;
             }),
         goToPrevious: () =>
-            updateAndSave((participants) => {
+            updateAndSave((creatures) => {
                 const current = current_order.findIndex((c) => {
                     return c.active;
                 });
-                if (current == 0 && get($round) == 1) return participants;
+                if (current == 0 && get($round) == 1) return creatures;
 
                 if (current == -1) {
                     current_order[0].active = true;
@@ -684,9 +684,9 @@ function createTracker() {
                         if (prevIndex > current) {
                             const round = get($round) - 1;
                             $round.set(round);
-                            for (const participant of participants) {
-                                participant.status = new Set(
-                                    [...participant.status].filter(
+                            for (const creature of creatures) {
+                                creature.status = new Set(
+                                    [...creature.status].filter(
                                         (s) => !s.resetOnRound
                                     )
                                 );
@@ -697,7 +697,7 @@ function createTracker() {
                         prev.active = true;
                     }
                 }
-                return participants;
+                return creatures;
             }),
 
         ordered,
@@ -707,24 +707,24 @@ function createTracker() {
             roll: boolean = plugin.data.rollHP,
             ...items: Participant[]
         ) =>
-            updateAndSave((participants) => {
+            updateAndSave((creatures) => {
                 if (plugin.canUseDiceRoller && roll) {
-                    setParticipantHP(items, plugin, roll);
+                    setCreatureHP(items, plugin, roll);
                 }
 
-                participants.push(...items);
+                creatures.push(...items);
                 const toRoll: Participant[] = [];
                 if (!_settings.condense) {
                     toRoll.push(...items);
                 } else {
-                    for (const participant of items) {
+                    for (const creature of items) {
                         const existing = current_order.find((c) =>
-                            equivalent(c, participant)
+                            equivalent(c, creature)
                         );
                         if (existing) {
-                            participant.initiative = existing.initiative;
+                            creature.initiative = existing.initiative;
                         } else {
-                            toRoll.push(participant);
+                            toRoll.push(creature);
                         }
                     }
                 }
@@ -733,44 +733,44 @@ function createTracker() {
                     _logger?.join(items.map((c) => c.name)),
                     "added to the combat."
                 );
-                setNumbers(participants);
-                return participants;
+                setNumbers(creatures);
+                return creatures;
             }),
         remove: (...items: Participant[]) =>
-            updateAndSave((participants) => {
-                participants = participants.filter((m) => !items.includes(m));
+            updateAndSave((creatures) => {
+                creatures = creatures.filter((m) => !items.includes(m));
 
                 _logger?.log(
                     _logger?.join(items.map((c) => c.name)),
                     "removed from the combat."
                 );
-                return participants;
+                return creatures;
             }),
         replace: (old: Participant, replacer: Participant) => {
-            updateAndSave((participants) => {
-                participants.splice(participants.indexOf(old), 1, replacer);
-                setNumbers(participants);
-                return participants;
+            updateAndSave((creatures) => {
+                creatures.splice(creatures.indexOf(old), 1, replacer);
+                setNumbers(creatures);
+                return creatures;
             });
         },
         update: () => update((c) => c),
         updateAndSave: () => updateAndSave((c) => c),
         roll: (plugin: InitiativeTracker) =>
-            updateAndSave((participants) => {
-                rollIntiative(plugin, participants);
-                return participants;
+            updateAndSave((creatures) => {
+                rollIntiative(plugin, creatures);
+                return creatures;
             }),
         new: (plugin: InitiativeTracker, state?: InitiativeViewState) =>
-            updateAndSave((participants) => {
+            updateAndSave((creatures) => {
                 $round.set(state?.round ?? 1);
                 $state.set(state?.state ?? false);
                 $name.set(state?.name ?? null);
 
-                if (!state?.participants) {
+                if (!state?.creatures) {
                     /**
                      * New encounter button was clicked, only maintain the players.
                      */
-                    participants = participants.filter((c) => c.player);
+                    creatures = creatures.filter((c) => c.player);
                 } else {
                     /**
                      * Encounter is being started. Keep any pre-existing players that are incoming.
@@ -781,23 +781,23 @@ function createTracker() {
                     const players = new Map(
                         [
                             ...(party ? plugin.getPlayersForParty(party) : []),
-                            ...participants.filter((p) => p.player)
+                            ...creatures.filter((p) => p.player)
                         ].map((c) => [c.id, c])
                     ).values();
-                    for (const participant of state.participants) {
+                    for (const creature of state.creatures) {
                         /* const ; */
                         let existingPlayer: Participant | null = null;
                         if (
-                            participant.player &&
-                            (existingPlayer = participants.find(
-                                (c) => c.player && c.id === participant.id
+                            creature.player &&
+                            (existingPlayer = creatures.find(
+                                (c) => c.player && c.id === creature.id
                             )) &&
                             existingPlayer != null
                         ) {
                             tempCreatureArray.push(existingPlayer);
                         } else {
                             tempCreatureArray.push(
-                                Participant.fromJSON(participant, plugin)
+                                Participant.fromJSON(creature, plugin)
                             );
                         }
                     }
@@ -810,17 +810,17 @@ function createTracker() {
                             tempCreatureArray.push(player);
                         }
                     }
-                    participants = tempCreatureArray;
+                    creatures = tempCreatureArray;
                 }
                 if (!state || state?.roll) {
-                    rollIntiative(plugin, participants);
+                    rollIntiative(plugin, creatures);
                 }
-                setNumbers(participants);
+                setNumbers(creatures);
                 if (
                     plugin.canUseDiceRoller &&
                     (state?.rollHP ?? plugin.data.rollHP)
                 ) {
-                    setParticipantHP(participants, plugin);
+                    setCreatureHP(creatures, plugin);
                 }
 
                 if (state?.logFile) {
@@ -832,21 +832,21 @@ function createTracker() {
                     _logger.logging = false;
                     $logFile.set(null);
                 }
-                return participants;
+                return creatures;
             }),
         reset: () =>
-            updateAndSave((participants) => {
-                for (let participant of participants) {
-                    participant.current_ac = participant.ac;
-                    participant.hp = participant.current_max = participant.max;
-                    participant.enabled = true;
-                    participant.status.clear();
+            updateAndSave((creatures) => {
+                for (let creature of creatures) {
+                    creature.current_ac = creature.ac;
+                    creature.hp = creature.current_max = creature.max;
+                    creature.enabled = true;
+                    creature.status.clear();
                 }
                 _logger?.log("Encounter HP & Statuses reset");
-                return participants;
+                return creatures;
             }),
 
-        getOrderedParticipants: () => get(ordered),
+        getOrderedCreatures: () => get(ordered),
         logUpdate: (messages: UpdateLogMessage[]) => {
             const toLog: string[] = [];
             for (const message of messages) {
@@ -916,39 +916,39 @@ function createTracker() {
         updateState: () => update((c) => c),
 
         difficulty: (plugin: InitiativeTracker) =>
-            derived([participants, data], ([values]) => {
+            derived([creatures, data], ([values]) => {
                 const players: number[] = [];
-                const participantMap = new Map<Participant, number>();
+                const creatureMap = new Map<Participant, number>();
                 const rpgSystem = getRpgSystem(plugin);
 
-                for (const participant of values) {
-                    if (!participant.enabled) continue;
-                    if (participant.friendly) continue;
-                    if (participant.player && participant.level) {
-                        players.push(participant.level);
+                for (const creature of values) {
+                    if (!creature.enabled) continue;
+                    if (creature.friendly) continue;
+                    if (creature.player && creature.level) {
+                        players.push(creature.level);
                         continue;
                     }
                     const stats = {
-                        name: participant.name,
-                        display: participant.display,
-                        ac: participant.ac,
-                        hp: participant.hp,
-                        modifier: participant.modifier,
-                        xp: participant.xp,
-                        hidden: participant.hidden
+                        name: creature.name,
+                        display: creature.display,
+                        ac: creature.ac,
+                        hp: creature.hp,
+                        modifier: creature.modifier,
+                        xp: creature.xp,
+                        hidden: creature.hidden
                     };
-                    const existing = [...participantMap].find(([c]) =>
+                    const existing = [...creatureMap].find(([c]) =>
                         equivalent(c, stats)
                     );
                     if (!existing) {
-                        participantMap.set(participant, 1);
+                        creatureMap.set(creature, 1);
                         continue;
                     }
-                    participantMap.set(existing[0], existing[1] + 1);
+                    creatureMap.set(existing[0], existing[1] + 1);
                 }
                 return {
                     difficulty: rpgSystem.getEncounterDifficulty(
-                        participantMap,
+                        creatureMap,
                         players
                     ),
                     thresholds: rpgSystem.getDifficultyThresholds(players),
@@ -960,17 +960,17 @@ function createTracker() {
 
 export const tracker = createTracker();
 
-function setParticipantHP(
-    participants: Participant[],
+function setCreatureHP(
+    creatures: Participant[],
     plugin: InitiativeTracker,
     rollHP = false
 ) {
-    for (const participant of participants) {
-        if (!participant.rollHP && !rollHP) continue;
-        if (!participant.hit_dice?.length) continue;
-        let roller = plugin.getRoller(participant.hit_dice);
+    for (const creature of creatures) {
+        if (!creature.rollHP && !rollHP) continue;
+        if (!creature.hit_dice?.length) continue;
+        let roller = plugin.getRoller(creature.hit_dice);
         if (!roller) continue;
-        participant.hp = participant.max = participant.current_max = roller.rollSync();
+        creature.hp = creature.max = creature.current_max = roller.rollSync();
     }
 }
 
@@ -1004,10 +1004,10 @@ class Tracker {
         });
     }
 
-    /** All participants in the encounter. Includes players. */
-    #participants = writable<Participant[]>([]);
-    /** All participants, ordered by initiative. */
-    ordered = derived(this.#participants, (values) => {
+    /** All creatures in the encounter. Includes players. */
+    #creatures = writable<Participant[]>([]);
+    /** All creatures, ordered by initiative. */
+    ordered = derived(this.#creatures, (values) => {
         const sort = [...values];
         sort.sort((a, b) => {
             return this.#data.descending
@@ -1020,12 +1020,12 @@ class Tracker {
     /** Static, non-store list. Populated during the order store update. */
     #current_order: Participant[] = [];
     /** Just players. */
-    #players = derived(this.#participants, (participants) =>
-        participants.filter((c) => c.player)
+    #players = derived(this.#creatures, (creatures) =>
+        creatures.filter((c) => c.player)
     );
     /** Just combatants. */
-    #combatants = derived(this.#participants, (participants) =>
-        participants.filter((c) => !c.player)
+    #combatants = derived(this.#creatures, (creatures) =>
+        creatures.filter((c) => !c.player)
     );
     /** Enemies. */
     #enemies = derived(this.#combatants, (combatants) =>
@@ -1049,7 +1049,7 @@ class Tracker {
                 this.#logger.new({
                     name: get(this.name)!,
                     players: this.#current_order.filter((c) => c.player),
-                    participants: this.#current_order.filter((c) => !c.player),
+                    creatures: this.#current_order.filter((c) => !c.player),
                     round: get(this.round)
                 });
             } else {
@@ -1058,18 +1058,18 @@ class Tracker {
         } else {
             this.tryLog("Combat stopped");
         }
-        this.#updateAndSave((participants) => {
-            if (participants.length && !participants.find((c) => c.active)) {
+        this.#updateAndSave((creatures) => {
+            if (creatures.length && !creatures.find((c) => c.active)) {
                 this.#current_order[0].active = true;
             }
-            return participants;
+            return creatures;
         });
     }
     name = writable<string | null>();
     party = writable<string | null>();
     getEncounterState(): InitiativeViewState {
         return {
-            participants: get(this.#participants).map((c) => c.toJSON()),
+            creatures: get(this.#creatures).map((c) => c.toJSON()),
             state: get(this.active),
             name: get(this.name)!,
             round: get(this.round),
@@ -1079,12 +1079,12 @@ class Tracker {
     }
     /**
      * The svelte store contract.
-     * Expose the participant store, so this class can be
-     * used directly as the participant store in svelte files.
+     * Expose the creature store, so this class can be
+     * used directly as the creature store in svelte files.
      */
-    subscribe = this.#participants.subscribe;
-    set = this.#participants.set;
-    update = this.#participants.update;
+    subscribe = this.#creatures.subscribe;
+    set = this.#creatures.set;
+    update = this.#creatures.update;
     #updateAndSave(updater: Updater<Participant[]>) {
         this.update(updater);
         app.workspace.trigger(
@@ -1110,49 +1110,49 @@ class Tracker {
     /** Participant updates */
     updating = writable<Map<Participant, HPUpdate>>(new Map());
     updateTarget = writable<"ac" | "hp">();
-    updateParticipants(...updates: ParticipantUpdates[]) {
-        this.#updateAndSave((participants) => {
-            return this.performParticipantUpdate(participants, ...updates);
+    updateCreatures(...updates: CreatureUpdates[]) {
+        this.#updateAndSave((creatures) => {
+            return this.performCreatureUpdate(creatures, ...updates);
         });
     }
-    performParticipantUpdate(
-        participants: Participant[],
-        ...updates: ParticipantUpdates[]
+    performCreatureUpdate(
+        creatures: Participant[],
+        ...updates: CreatureUpdates[]
     ) {
-        for (const { participant, change } of updates) {
+        for (const { creature, change } of updates) {
             if (change.initiative) {
-                participant.initiative = Number(change.initiative);
+                creature.initiative = Number(change.initiative);
                 this.tryLog(
-                    `${participant.getName()} initiative changed to ${
-                        participant.initiative
+                    `${creature.getName()} initiative changed to ${
+                        creature.initiative
                     }`
                 );
             }
             if (change.name) {
-                participant.name = change.name;
-                participant.number = 0;
+                creature.name = change.name;
+                creature.number = 0;
             }
             if (change.hp) {
                 // Reduce temp HP first
                 change.hp = Number(change.hp);
-                if (change.hp < 0 && participant.temp > 0) {
-                    const remaining = participant.temp + change.hp;
-                    participant.temp = Math.max(0, remaining);
+                if (change.hp < 0 && creature.temp > 0) {
+                    const remaining = creature.temp + change.hp;
+                    creature.temp = Math.max(0, remaining);
                     change.hp = Math.min(0, remaining);
                 }
                 // Clamp HP at 0 if clamp is enabled in settings
-                if (this.#data.clamp && participant.hp + change.hp < 0) {
-                    change.hp = -participant.hp;
+                if (this.#data.clamp && creature.hp + change.hp < 0) {
+                    change.hp = -creature.hp;
                 }
                 // Handle overflow healing according to settings
                 if (
                     change.hp > 0 &&
-                    change.hp + participant.hp > participant.current_max
+                    change.hp + creature.hp > creature.current_max
                 ) {
                     switch (this.#data.hpOverflow) {
                         case OVERFLOW_TYPE.ignore:
                             change.hp = Math.max(
-                                participant.current_max - participant.hp,
+                                creature.current_max - creature.hp,
                                 0
                             );
                             break;
@@ -1160,106 +1160,106 @@ class Tracker {
                             // Gives temp a value, such that it will be set later
                             change.temp =
                                 change.hp -
-                                Math.min(participant.current_max - participant.hp, 0);
+                                Math.min(creature.current_max - creature.hp, 0);
                             change.hp -= change.temp;
                             break;
                         case OVERFLOW_TYPE.current:
                             break;
                     }
                 }
-                participant.hp += change.hp;
-                if (this.#data.autoStatus && participant.hp <= 0) {
+                creature.hp += change.hp;
+                if (this.#data.autoStatus && creature.hp <= 0) {
                     const unc = this.#data.statuses.find(
                         (s) => s.id == this.#data.unconsciousId
                     );
-                    if (unc) participant.addCondition(unc);
+                    if (unc) creature.addCondition(unc);
                 }
             }
             if (change.max) {
-                participant.current_max = Math.max(
+                creature.current_max = Math.max(
                     0,
-                    participant.current_max + change.max
+                    creature.current_max + change.max
                 );
                 if (
-                    participant.hp >= participant.current_max &&
+                    creature.hp >= creature.current_max &&
                     this.#data.hpOverflow !== OVERFLOW_TYPE.current
                 ) {
-                    participant.hp = participant.current_max;
+                    creature.hp = creature.current_max;
                 }
             }
             if (change.set_hp) {
-                participant.hp = change.set_hp;
+                creature.hp = change.set_hp;
             }
             if (change.set_max_hp) {
-                participant.current_max = participant.max = change.set_max_hp;
+                creature.current_max = creature.max = change.set_max_hp;
             }
             if (change.ac) {
-                participant.current_ac = participant.ac = change.ac;
+                creature.current_ac = creature.ac = change.ac;
             }
             if (change.temp) {
                 let baseline = 0;
                 if (this.#data.additiveTemp) {
-                    baseline = participant.temp;
+                    baseline = creature.temp;
                 }
                 if (change.temp > 0) {
-                    participant.temp = Math.max(
-                        participant.temp,
+                    creature.temp = Math.max(
+                        creature.temp,
                         baseline + change.temp
                     );
                 } else {
-                    participant.temp = Math.max(0, participant.temp + change.temp);
+                    creature.temp = Math.max(0, creature.temp + change.temp);
                 }
             }
             if (change.marker) {
-                participant.marker = change.marker;
+                creature.marker = change.marker;
             }
             if (change.status?.length) {
                 for (const status of change.status) {
-                    participant.addCondition(status);
+                    creature.addCondition(status);
                 }
             }
             if (change.remove_status?.length) {
                 for (const status of change.remove_status) {
-                    participant.removeCondition(status);
+                    creature.removeCondition(status);
                     this.tryLog(
-                        `${participant.name} relieved of status ${status.name}`
+                        `${creature.name} relieved of status ${status.name}`
                     );
                 }
             }
             if ("hidden" in change) {
-                participant.hidden = change.hidden!;
+                creature.hidden = change.hidden!;
                 this.tryLog(
-                    `${participant.getName()} ${
-                        participant.hidden ? "hidden" : "revealed"
+                    `${creature.getName()} ${
+                        creature.hidden ? "hidden" : "revealed"
                     }`
                 );
             }
             if ("enabled" in change) {
-                participant.enabled = change.enabled!;
+                creature.enabled = change.enabled!;
                 this.tryLog(
-                    `${participant.getName()} ${
-                        participant.enabled ? "enabled" : "disabled"
+                    `${creature.getName()} ${
+                        creature.enabled ? "enabled" : "disabled"
                     }`
                 );
             }
-            if (!participants.includes(participant)) {
-                participants.push(participant);
+            if (!creatures.includes(creature)) {
+                creatures.push(creature);
             }
         }
-        return participants;
+        return creatures;
     }
     setUpdate(creature: Participant, evt: MouseEvent) {
-        this.updating.update((updatingMap) => {
-            if (updatingMap.has(creature)) {
-                updatingMap.delete(creature);
+        this.updating.update((creatures) => {
+            if (creatures.has(creature)) {
+                creatures.delete(creature);
             } else {
-                updatingMap.set(creature, {
+                creatures.set(creature, {
                     saved: evt.getModifierState("Shift"),
                     resist: evt.getModifierState(modifier),
                     customMod: evt.getModifierState("Alt") ? "2" : "1"
                 });
             }
-            return updatingMap;
+            return creatures;
         });
     }
     doUpdate(
@@ -1270,18 +1270,18 @@ class Tracker {
     ) {
         this.updating.update((updatingCreatures) => {
             const messages: UpdateLogMessage[] = [];
-            const updates: ParticipantUpdates[] = [];
+            const updates: CreatureUpdates[] = [];
 
-            updatingCreatures.forEach((entry, participant) => {
+            updatingCreatures.forEach((entry, creature) => {
                 const roundHalf = !toAddString.includes(".");
-                const change: ParticipantUpdate = {};
+                const change: CreatureUpdate = {};
                 const modifier =
                     (entry.saved ? 0.5 : 1) *
                     (entry.resist ? 0.5 : 1) *
                     Number(entry.customMod);
-                const name = [participant.name];
-                if (participant.number > 0) {
-                    name.push(`${participant.number}`);
+                const name = [creature.name];
+                if (creature.number > 0) {
+                    name.push(`${creature.number}`);
                 }
                 const message: UpdateLogMessage = {
                     name: name.join(" "),
@@ -1315,7 +1315,7 @@ class Tracker {
                         change.max = toAdd;
                     }
                     change.hp = toAdd;
-                    if (participant.hp <= 0) {
+                    if (creature.hp <= 0) {
                         message.unc = true;
                     }
                 }
@@ -1334,26 +1334,26 @@ class Tracker {
                 if (ac) {
                     if (ac.charAt(0) == "+" || ac.charAt(0) == "-") {
                         const current_ac = parseInt(
-                            String(participant.current_ac)
+                            String(creature.current_ac)
                         );
                         if (isNaN(current_ac)) {
-                            participant.current_ac = participant.current_ac + ac;
+                            creature.current_ac = creature.current_ac + ac;
                         } else {
-                            participant.current_ac = current_ac + parseInt(ac);
+                            creature.current_ac = current_ac + parseInt(ac);
                         }
                         message.ac_add = true;
                     } else {
-                        participant.current_ac = ac.slice(
+                        creature.current_ac = ac.slice(
                             Number(ac.charAt(0) == "\\")
                         );
                     }
                     message.ac = ac.slice(Number(ac.charAt(0) == "\\"));
                 }
                 messages.push(message);
-                updates.push({ participant, change });
+                updates.push({ creature, change });
             });
             this.#logger?.logUpdate(messages);
-            this.updateParticipants(...updates);
+            this.updateCreatures(...updates);
             updatingCreatures.clear();
             return updatingCreatures;
         });

@@ -1,9 +1,9 @@
 <script lang="ts">
-    import { ExtraButtonComponent, setIcon } from "obsidian";
+    import { ExtraButtonComponent } from "obsidian";
 
     import CreatureTemplate from "./Creature.svelte";
 
-    import { AC, DICE, META_MODIFIER } from "src/utils";
+    import { DICE } from "src/utils";
     import { Participant, getId } from "src/utils/creature";
     import { createEventDispatcher } from "svelte";
     import { dndzone } from "svelte-dnd-action";
@@ -22,9 +22,6 @@
 
     const dispatch = createEventDispatcher();
 
-    const acIcon = (node: HTMLElement) => {
-        setIcon(node, AC);
-    };
     const flipDurationMs = 300;
     function handleDndConsider(
         e: CustomEvent<GenericDndEvent<{ participant: Participant; id: string }[]>>
@@ -69,11 +66,10 @@
                 style="width: 10%;"
                 use:diceIcon
                 aria-label="Re-Roll Initiatives"
-                on:click={(evt) => tracker.roll(plugin)}
+                on:click={() => tracker.roll(plugin)}
             />
-            <th class="left" style="width:70%">Name</th>
-            <th style="width:15%" use:acIcon class="center" aria-label="Role Modifier" />
-            <th style="width:5%" />
+            <th class="left" style="width:80%">Name</th>
+            <th style="width:10%" />
         </thead>
         <tbody
             use:dndzone={{
@@ -99,8 +95,7 @@
                     }}
                 >
                     <CreatureTemplate
-                        creature={participant}
-                        on:hp
+                        {participant}
                         on:tag
                         on:edit
                         on:open-combatant
@@ -109,7 +104,7 @@
             {/each}
         </tbody>
     {:else}
-        <div class="no-creatures">
+        <div class="no-participants">
             <p>Add a participant to get started!</p>
             <small>Participants may be created in settings.</small>
         </div>
@@ -117,7 +112,7 @@
 </table>
 
 <style scoped>
-    .no-creatures {
+    .no-participants {
         margin: 1rem;
         text-align: center;
     }
@@ -131,19 +126,13 @@
         border-collapse: separate;
         border-spacing: 0 2px;
     }
-
     .left {
         text-align: left;
     }
-    .center {
-        text-align: center;
-    }
-
     .tracker-table-header {
         font-weight: bolder;
         display: contents;
     }
-
     .initiative-tracker-creature {
         position: relative;
     }

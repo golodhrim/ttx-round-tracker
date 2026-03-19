@@ -3,37 +3,22 @@
     import { fade } from "svelte/transition";
     import { SyncLoader } from "svelte-loading-spinners";
 
-    import { AC, FRIENDLY, HP, INITIATIVE } from "src/utils";
+    import { FRIENDLY, INITIATIVE } from "src/utils";
     import type { Participant } from "src/utils/creature";
-    import { createEventDispatcher } from "svelte";
 
     import { tracker } from "../stores/tracker";
-    const { state, ordered, data } = tracker;
+    const { state, ordered } = tracker;
 
-    const hpIcon = (node: HTMLElement) => {
-        setIcon(node, HP);
-    };
-    const acIcon = (node: HTMLElement) => {
-        setIcon(node, AC);
-    };
     const iniIcon = (node: HTMLElement) => {
         setIcon(node, INITIATIVE);
     };
 
-    const getHpStatus = (hp: number, max: number) => {
-        if (!hp) return "";
-        if (hp <= 0) return "Defeated";
-        if (hp < max / 2) return "Bloodied";
-        if (hp < max) return "Hurt";
-        return "Healthy";
-    };
-
-    const amIActive = (creature: Participant) => {
-        if (creature.hidden) return false;
-        if (creature.active) return true;
+    const amIActive = (participant: Participant) => {
+        if (participant.hidden) return false;
+        if (participant.active) return true;
 
         const active = $ordered.findIndex((c) => c.active);
-        const index = $ordered.indexOf(creature);
+        const index = $ordered.indexOf(participant);
         if (active == -1 || active < index) return false;
 
         const remaining = $ordered.slice(index + 1, active + 1);
@@ -43,7 +28,7 @@
 
     $: activeAndVisible = $ordered.filter((c) => c.enabled && !c.hidden);
 
-    const name = (creature: Participant) => creature.getName();
+    const name = (participant: Participant) => participant.getName();
     const friendIcon = (node: HTMLElement) => {
         setIcon(node, FRIENDLY);
     };
@@ -52,29 +37,18 @@
 <table class="initiative-tracker-table" transition:fade>
     <thead class="tracker-table-header">
         <th style="width:5%"><strong use:iniIcon /></th>
-        <th class="left" style="width:30%"><strong>Name</strong></th>
-        <th style="width:15%" class="center"><strong use:hpIcon /></th>
-        <th><strong> Statuses </strong></th>
+        <th class="left" style="width:50%"><strong>Name</strong></th>
+        <th><strong>Statuses</strong></th>
     </thead>
     <tbody>
-        {#each activeAndVisible as creature (creature.id)}
-            <tr class:active={amIActive(creature) && $state}>
-                <td class="center">{creature.initiative}</td>
-                <td class='name'>
-                    {name(creature)}
-                </td>
-                <td
-                    class:center={true}
-                    class={getHpStatus(creature.hp, creature.max).toLowerCase()}
-                >
-                    {#if creature.player && $data.diplayPlayerHPValues}
-                        <div class="center">{@html creature.hpDisplay}</div>
-                    {:else}
-                        <span>{getHpStatus(creature.hp, creature.max)}</span>
-                    {/if}
+        {#each activeAndVisible as participant (participant.id)}
+            <tr class:active={amIActive(participant) && $state}>
+                <td class="center">{participant.initiative}</td>
+                <td class="name">
+                    {name(participant)}
                 </td>
                 <td class="center">
-                    {[...creature.status].map((s) => s.name).join(", ")}
+                    {[...participant.status].map((s) => s.name).join(", ")}
                 </td>
             </tr>
         {/each}
@@ -82,13 +56,6 @@
 </table>
 
 <style scoped>
-    .full-center {
-        width: 100%;
-        height: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
     .initiative-tracker-table {
         padding: 0.5rem;
         align-items: center;
@@ -110,18 +77,6 @@
     }
     .center {
         text-align: center;
-    }
-    .healthy {
-        color: var(--text-success);
-    }
-    .hurt {
-        color: var(--text-warning);
-    }
-    .bloodied {
-        color: var(--text-error);
-    }
-    .defeated {
-        color: var(--text-faint);
     }
     .active {
         background-color: rgba(0, 0, 0, 0.1);

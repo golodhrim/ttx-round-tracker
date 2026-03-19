@@ -67,50 +67,50 @@ export class Participant {
         this.status = new Set(
             [...this.status].filter((s) => s.id != condition.id)
         );    }
-    constructor(public creature: HomebrewCreature, initiative: number = 0) {
-        this.name = creature.name;
-        this.display = creature.display;
+    constructor(public participantData: HomebrewCreature, initiative: number = 0) {
+        this.name = participantData.name;
+        this.display = participantData.display;
         this.initiative =
-            "initiative" in creature
-                ? (creature as Participant).initiative
+            "initiative" in participantData
+                ? (participantData as Participant).initiative
                 : Number(initiative ?? 0);
-        this.static = creature.static ?? false;
-        this.setModifier(creature.modifier);
-        this.current_ac = this.ac = creature.ac ?? undefined;
+        this.static = participantData.static ?? false;
+        this.setModifier(participantData.modifier);
+        this.current_ac = this.ac = participantData.ac ?? undefined;
         this.dirty_ac = false;
-        this.max = this.current_max = creature.hp ? Number(creature.hp) : 0;
-        this.note = creature.note;
-        this.level = creature.level;
-        this.player = creature.player;
+        this.max = this.current_max = participantData.hp ? Number(participantData.hp) : 0;
+        this.note = participantData.note;
+        this.level = participantData.level;
+        this.player = participantData.player;
 
-        this.rollHP = creature.rollHP;
+        this.rollHP = participantData.rollHP;
 
-        this.marker = creature.marker;
+        this.marker = participantData.marker;
 
         this.hp = this.max;
         this.temp = 0;
-        this.source = creature.source;
+        this.source = participantData.source;
 
-        this.friendly = creature.friendly ?? this.friendly;
+        this.friendly = participantData.friendly ?? this.friendly;
 
-        this.active = creature.active;
+        this.active = participantData.active;
 
-        this.hidden = creature.hidden ?? false;
+        this.hidden = participantData.hidden ?? false;
 
-        this.note = creature.note;
-        this.path = creature.path;
+        this.note = participantData.note;
+        this.path = participantData.path;
 
-        this.xp = creature.xp;
+        this.xp = participantData.xp;
 
-        this.cr = creature.cr;
-        this.id = creature.id ?? getId();
-        if ("statblock-link" in creature) {
-            this["statblock-link"] = (creature as any)[
+        this.cr = participantData.cr;
+        this.id = participantData.id ?? getId();
+        if ("statblock-link" in participantData) {
+            this["statblock-link"] = (participantData as any)[
                 "statblock-link"
             ] as string;
         }
-        if ("hit_dice" in creature && typeof creature.hit_dice == "string") {
-            this.hit_dice = creature.hit_dice;
+        if ("hit_dice" in participantData && typeof participantData.hit_dice == "string") {
+            this.hit_dice = participantData.hit_dice;
         }
     }
     get hpDisplay() {
@@ -175,40 +175,40 @@ export class Participant {
         );
     }
 
-    static from(creature: HomebrewCreature | SRDMonster) {
+    static from(participantData: HomebrewCreature | SRDMonster) {
         const modifier =
-            "modifier" in creature
-                ? creature.modifier
+            "modifier" in participantData
+                ? participantData.modifier
                 : Math.floor(
-                      (("stats" in creature && creature.stats.length > 1
-                          ? creature.stats[1]
+                      (("stats" in participantData && participantData.stats.length > 1
+                          ? participantData.stats[1]
                           : 10) -
                           10) /
                           2
                   );
         return new Participant({
-            ...creature,
+            ...participantData,
             modifier: modifier
         });
     }
 
-    update(creature: HomebrewCreature) {
-        this.name = creature.name;
+    update(participantData: HomebrewCreature) {
+        this.name = participantData.name;
 
-        this.setModifier(creature.modifier);
+        this.setModifier(participantData.modifier);
 
-        this.current_max = this.max = creature.hp ? Number(creature.hp) : 0;
+        this.current_max = this.max = participantData.hp ? Number(participantData.hp) : 0;
 
         if (this.hp > this.max) this.hp = this.max;
 
-        this.current_ac = this.ac = creature.ac ?? undefined;
-        this.note = creature.note;
-        this.level = creature.level;
-        this.player = creature.player;
-        this["statblock-link"] = creature["statblock-link"];
+        this.current_ac = this.ac = participantData.ac ?? undefined;
+        this.note = participantData.note;
+        this.level = participantData.level;
+        this.player = participantData.player;
+        this["statblock-link"] = participantData["statblock-link"];
 
-        this.marker = creature.marker;
-        this.source = creature.source;
+        this.marker = participantData.marker;
+        this.source = participantData.source;
     }
 
     toProperties() {

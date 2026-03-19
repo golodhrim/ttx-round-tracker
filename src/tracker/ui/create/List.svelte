@@ -7,16 +7,14 @@
         HIDDEN,
         HP,
         INITIATIVE,
-        RANDOM_HP
     } from "src/utils";
     import type { Participant } from "src/utils/creature";
     import type { Writable } from "svelte/store";
 
     export let adding: Writable<Array<[Participant, number]>>;
     export let editing: Writable<Participant>;
-    export let rollHP: boolean;
 
-    const minusIcon = (node: HTMLElement, creature: Participant) => {
+    const minusIcon = (node: HTMLElement, _participant: Participant) => {
         new ExtraButtonComponent(node).setIcon("minus");
     };
     const minus = (evt: MouseEvent, index: number) => {
@@ -27,14 +25,14 @@
         $adding[index][1] -= 1;
         $adding = $adding;
     };
-    const plusIcon = (node: HTMLElement, creature: Participant) => {
+    const plusIcon = (node: HTMLElement, _participant: Participant) => {
         new ExtraButtonComponent(node).setIcon("plus");
     };
     const add = (evt: MouseEvent, index: number) => {
         $adding[index][1] += 1;
         $adding = $adding;
     };
-    const delIcon = (node: HTMLElement, creature: Participant) => {
+    const delIcon = (node: HTMLElement, _participant: Participant) => {
         new ExtraButtonComponent(node).setIcon("trash");
     };
     const del = (evt: MouseEvent, index: number) => {
@@ -43,9 +41,6 @@
     };
     const heart = (node: HTMLElement) => {
         setIcon(node, HP);
-    };
-    const random = (node: HTMLElement) => {
-        setIcon(node, RANDOM_HP);
     };
     const ac = (node: HTMLElement) => {
         setIcon(node, AC);
@@ -61,53 +56,49 @@
     };
 </script>
 
-<h5 class="list-header">Creatures</h5>
+<h5 class="list-header">Participants</h5>
 <div class="initiative-tracker-list">
     {#if $adding.length}
-        {#each $adding as [creature, number], index}
-            <div class="creature" on:click={() => ($editing = creature)}>
-                <div class="creature-metadata">
-                    <div class="creature-name">{creature.getName()}</div>
-                    <div class="creature-amount">
+        {#each $adding as [participant, number], index}
+            <div class="participant" on:click={() => ($editing = participant)}>
+                <div class="participant-metadata">
+                    <div class="participant-name">{participant.getName()}</div>
+                    <div class="participant-amount">
                         <div
-                            class="creature-minus"
-                            use:minusIcon={creature}
+                            class="participant-minus"
+                            use:minusIcon={participant}
                             on:click|stopPropagation={(evt) =>
                                 minus(evt, index)}
                         />
-                        <div class="creature-number">{number}</div>
+                        <div class="participant-number">{number}</div>
                         <div
-                            class="creature-minus"
-                            use:plusIcon={creature}
+                            class="participant-minus"
+                            use:plusIcon={participant}
                             on:click|stopPropagation={(evt) => add(evt, index)}
                         />
                         <div
-                            class="creature-delete"
-                            use:delIcon={creature}
+                            class="participant-delete"
+                            use:delIcon={participant}
                             on:click|stopPropagation={(evt) => del(evt, index)}
                         />
                     </div>
                 </div>
-                <small class="creature-data">
+                <small class="participant-data">
                     <span>
-                        {creature.hp ?? DEFAULT_UNDEFINED}
-                        {#if rollHP}
-                            <span use:random />
-                        {:else}
-                            <span use:heart />
-                        {/if}
+                        {participant.hp ?? DEFAULT_UNDEFINED}
+                        <span use:heart />
                         <span>
-                            {creature.ac ?? DEFAULT_UNDEFINED}
+                            {participant.ac ?? DEFAULT_UNDEFINED}
                             <span use:ac />
                         </span>
                         <span>
-                            {creature.initiative ?? DEFAULT_UNDEFINED}
+                            {participant.initiative ?? DEFAULT_UNDEFINED}
                             <span use:init />
                         </span>
-                        {#if creature.hidden}
+                        {#if participant.hidden}
                             <span use:hidden />
                         {/if}
-                        {#if creature.friendly}
+                        {#if participant.friendly}
                             <span use:friendly />
                         {/if}
                     </span>
@@ -115,7 +106,7 @@
             </div>
         {/each}
     {:else}
-        <span>Add a creature.</span>
+        <span>Add a participant.</span>
     {/if}
 </div>
 
@@ -129,27 +120,27 @@
         overflow: scroll;
     }
 
-    .creature {
+    .participant {
         border-radius: 0.5rem;
         padding: 0.5rem;
     }
-    .creature:hover {
+    .participant:hover {
         background-color: var(--background-secondary);
     }
 
-    .creature-metadata {
+    .participant-metadata {
         display: flex;
         align-items: center;
         gap: 0.5rem;
     }
-    .creature-amount {
+    .participant-amount {
         margin-left: auto;
         display: grid;
         grid-template-columns: 1fr 1fr 1fr 1fr;
         align-items: center;
         text-align: center;
     }
-    .creature-data {
+    .participant-data {
         --icon-size: 10px;
         display: flex;
         align-items: center;

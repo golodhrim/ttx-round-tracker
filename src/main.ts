@@ -454,12 +454,12 @@ export default class InitiativeTracker extends Plugin {
                             Participant.from(player)
                         );
                         if (this.view) {
-                            const creature = tracker
-                                .getOrderedCreatures()
+                            const participant = tracker
+                                .getOrderedParticipants()
                                 .find((c) => c.name == player.name);
-                            if (creature) {
-                                tracker.updateCreatures({
-                                    creature,
+                            if (participant) {
+                                tracker.updateParticipants({
+                                    participant,
                                     change: {
                                         set_max_hp: player.hp,
                                         ac: player.ac
@@ -595,7 +595,7 @@ export default class InitiativeTracker extends Plugin {
                 "initiative-tracker:start-encounter",
                 async (homebrews: HomebrewCreature[]) => {
                     try {
-                        const creatures = homebrews.map((h) =>
+                        const participants = homebrews.map((h) =>
                             Participant.from(h).toJSON()
                         );
 
@@ -605,7 +605,7 @@ export default class InitiativeTracker extends Plugin {
                         }
                         if (view) {
                             tracker?.new(this, {
-                                creatures,
+                                participants,
                                 state: false,
                                 name: null,
                                 round: 1,

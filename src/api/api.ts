@@ -65,8 +65,8 @@ export class API {
         );
     }
     newEncounter(state?: InitiativeViewState) {
-        if (state?.creatures) {
-            state.creatures = state.creatures.map((c) =>
+        if (state?.participants) {
+            state.participants = state.participants.map((c) =>
                 Participant.from(c).toJSON()
             );
         }
