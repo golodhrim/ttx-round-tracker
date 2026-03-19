@@ -689,7 +689,7 @@ export default class InitiativeTrackerSettings extends PluginSettingTab {
         summary.createDiv("collapser").createDiv("handle");
         const add = new Setting(additionalContainer)
             .setName("Add New Status")
-            .setDesc("These statuses will be available to apply to creatures.")
+            .setDesc("These statuses will be available to apply to participants.")
             .addButton((button: ButtonComponent): ButtonComponent => {
                 let b = button
                     .setTooltip("Add Status")
@@ -845,11 +845,11 @@ export default class InitiativeTrackerSettings extends PluginSettingTab {
             await this.plugin.saveSettings();
         }
         new Setting(containerEl)
-            .setName("Sync Monsters from Fantasy Statblocks")
+            .setName("Sync Characters from Statblocks Plugin")
             .setDesc(
                 createFragment((e) => {
                     e.createSpan({
-                        text: "Homebrew creatures saved to the Fantasy Statblocks plugin will be available to use."
+                        text: "Homebrew characters saved to the Statblocks plugin will be available to use."
                     });
                     if (!this.plugin.canUseStatBlocks) {
                         e.createEl("br");

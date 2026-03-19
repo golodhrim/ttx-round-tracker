@@ -61,13 +61,6 @@
             <tr class:active={amIActive(creature) && $state}>
                 <td class="center">{creature.initiative}</td>
                 <td class='name'>
-                    {#if creature.friendly}
-                        <div
-                            class="contains-icon"
-                            use:friendIcon
-                            aria-label={`This creature is an ally.`}
-                        />
-                    {/if}
                     {name(creature)}
                 </td>
                 <td
