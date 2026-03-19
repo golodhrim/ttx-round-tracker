@@ -90,9 +90,9 @@ export default class Logger {
                     "|"
                 );
             }
-            await this.log("## Creatures");
-            await this.log("| Participant | Initiative  | HP | Statuses |");
-            await this.log("| --- | :-: | :-: | :-: |");
+            await this.log("## Participants");
+            await this.log("| Participant | Initiative | Statuses |");
+            await this.log("| --- | :-: | :-: |");
             for (const creature of param.creatures.sort(
                 (a, b) => b.initiative - a.initiative
             )) {
@@ -101,8 +101,6 @@ export default class Logger {
                     creature.getName().replace("|", "\\|"),
                     "|",
                     creature.initiative.toString(),
-                    "|",
-                    creature.hp ? `${creature.hp}/${creature.max}` : "-",
                     "|",
                     [
                         ...(creature.status.size
