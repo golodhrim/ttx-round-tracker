@@ -203,10 +203,10 @@ export class CreatureView extends ItemView {
     }
 
     getDisplayText(): string {
-        return "Combatant";
+        return "Character Viewer";
     }
     getIcon(): string {
-        return CREATURE;
+        return "user";
     }
     getViewType(): string {
         return PARTICIPANT_TRACKER_VIEW;
