@@ -12,6 +12,7 @@ export interface SessionParticipant {
     delegationModifier: number;
     bonuses: PlayerBonus[];
     specialRule?: string;
+    filePath?: string;   // vault-relative path to the character .md file
 }
 
 export interface SessionConfig {

@@ -61,7 +61,8 @@ async function readParticipantFromTFile(
             roleModifier: parseModifier(raw.modifier),
             delegationModifier: parseDelegationModifier(raw.delegation),
             bonuses: parseBonuses(raw.bonus),
-            specialRule: raw.special && raw.special !== "~" ? raw.special : undefined
+            specialRule: raw.special && raw.special !== "~" ? raw.special : undefined,
+            filePath: file.path
         };
     } catch {
         return null;
