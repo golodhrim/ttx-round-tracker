@@ -62,14 +62,16 @@
 <table class="initiative-tracker-table">
     {#if $ordered.length}
         <thead class="tracker-table-header">
-            <td
-                style="width: 10%;"
-                use:diceIcon
-                aria-label="Re-Roll Initiatives"
-                on:click={() => tracker.roll(plugin)}
-            />
-            <th class="left" style="width:80%">Name</th>
-            <th style="width:10%" />
+            <tr>
+                <th
+                    style="width: 10%;"
+                    use:diceIcon
+                    aria-label="Re-Roll Initiatives"
+                    on:click={() => tracker.roll(plugin)}
+                />
+                <th class="left" style="width:80%">Name</th>
+                <th style="width:10%" />
+            </tr>
         </thead>
         <tbody
             use:dndzone={{

@@ -36,9 +36,11 @@
 
 <table class="initiative-tracker-table" transition:fade>
     <thead class="tracker-table-header">
-        <th style="width:5%"><strong use:iniIcon /></th>
-        <th class="left" style="width:50%"><strong>Name</strong></th>
-        <th><strong>Statuses</strong></th>
+        <tr>
+            <th style="width:5%"><strong use:iniIcon /></th>
+            <th class="left" style="width:50%"><strong>Name</strong></th>
+            <th><strong>Statuses</strong></th>
+        </tr>
     </thead>
     <tbody>
         {#each activeAndVisible as participant (participant.id)}

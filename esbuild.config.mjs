@@ -23,7 +23,7 @@ const parameters = {
     },
     entryPoints: ["src/main.ts", "src/styles.css"],
     bundle: true,
-    external: ["obsidian", "electron", ...builtins],
+    external: ["obsidian", "electron", "@wooorm/starry-night", ...builtins],
     format: "cjs",
     logLevel: "info",
     target: "es2020",

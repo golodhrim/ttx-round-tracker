@@ -1,6 +1,6 @@
 <script lang="ts">
     import { ExtraButtonComponent } from "obsidian";
-    import { createEventDispatcher, getContext } from "svelte";
+    import { createEventDispatcher, getContext, onDestroy } from "svelte";
     import { slide } from "svelte/transition";
     import { linear } from "svelte/easing";
 
@@ -12,7 +12,14 @@
     const dispatch = createEventDispatcher<{ settings: MouseEvent }>();
 
     const filterStore = getContext<BuiltFilterStore>("filters");
-    const { active, name, layout } = filterStore;
+    const active = filterStore.active;
+    const name = filterStore.name;
+    const layout = filterStore.layout;
+
+    import type { FilterLayout } from "../../stores/filter/filter";
+    let layoutItems: FilterLayout = [];
+    const unsubLayout = layout.subscribe((v) => (layoutItems = v));
+    onDestroy(unsubLayout);
 
     const resetIcon = (node: HTMLElement) => {
         new ExtraButtonComponent(node).setIcon("reset");
@@ -37,7 +44,7 @@
     </div>
     {#if open}
         <div class="filters" transition:slide={{ easing: linear }}>
-            {#each $layout as layout}
+            {#each layoutItems as layout}
                 <FilterContainer {layout} />
             {/each}
         </div>

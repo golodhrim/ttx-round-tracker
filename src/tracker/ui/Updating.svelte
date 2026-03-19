@@ -140,8 +140,10 @@
     <div style="margin: 0.5rem">
         <table class="updating-participant-table">
             <thead class="updating-participant-table-header">
-                <th style="width:100%" class="left">Name</th>
-                <th />
+                <tr>
+                    <th style="width:100%" class="left">Name</th>
+                    <th />
+                </tr>
             </thead>
             <tbody>
                 {#each [...$updating.entries()] as [participant, _update], i}
