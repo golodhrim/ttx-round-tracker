@@ -9,7 +9,7 @@
     import Filters from "./Filters.svelte";
     import { ButtonComponent, Setting } from "obsidian";
     import copy from "fast-copy";
-    import { getId } from "src/utils/creature";
+    import { getId } from "src/utils/participant";
 
     export let filterStore: BuiltFilterStore;
     const { layout, filters } = filterStore;

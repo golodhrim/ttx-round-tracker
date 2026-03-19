@@ -1,10 +1,10 @@
 <script lang="ts">
     import { ExtraButtonComponent } from "obsidian";
 
-    import CreatureTemplate from "./Creature.svelte";
+    import CreatureTemplate from "./Participant.svelte";
 
     import { DICE } from "src/utils";
-    import { Participant, getId } from "src/utils/creature";
+    import { Participant, getId } from "src/utils/participant";
     import { createEventDispatcher } from "svelte";
     import { dndzone } from "svelte-dnd-action";
     import { flip } from "svelte/animate";

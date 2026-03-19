@@ -1,6 +1,6 @@
 import type InitiativeTracker from "src/main";
-import type { SRDMonster } from "src/types/creatures";
-import type { Participant } from "./creature";
+import type { SRDMonster } from "src/types/participants";
+import type { Participant } from "./participant";
 import { DECIMAL_TO_VULGAR_FRACTION } from "./constants";
 import { setIcon } from "obsidian";
 

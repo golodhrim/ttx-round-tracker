@@ -8,7 +8,7 @@
         HP,
         INITIATIVE,
     } from "src/utils";
-    import type { Participant } from "src/utils/creature";
+    import type { Participant } from "src/utils/participant";
     import type { Writable } from "svelte/store";
 
     export let adding: Writable<Array<[Participant, number]>>;

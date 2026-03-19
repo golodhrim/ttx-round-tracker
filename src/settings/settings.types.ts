@@ -1,7 +1,7 @@
 import type { InitiativeViewState } from "src/tracker/view.types";
 import type { RollPlayerInitiativeBehavior } from "src/utils";
-import type { Condition } from "src/types/creatures";
-import type { HomebrewCreature } from "src/types/creatures";
+import type { Condition } from "src/types/participants";
+import type { HomebrewCreature } from "src/types/participants";
 import type { BuilderState } from "src/builder/builder.types";
 
 export interface InitiativeTrackerData {

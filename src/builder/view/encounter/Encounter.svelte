@@ -8,14 +8,14 @@
         stringifyYaml
     } from "obsidian";
 
-    import Creature from "./Creature.svelte";
-    import { Participant as ParticipantCreator } from "../../../utils/creature";
+    import Creature from "./Participant.svelte";
+    import { Participant as ParticipantCreator } from "../../../utils/participant";
 
     import { encounter } from "../../stores/encounter";
     import { START_ENCOUNTER } from "src/utils";
     import { getContext } from "svelte";
     import { tracker } from "src/tracker/stores/tracker";
-    import type { CreatureState, SRDMonster } from "src/types/creatures";
+    import type { CreatureState, SRDMonster } from "src/types/participants";
     import { writable } from "svelte/store";
 
     const { players } = encounter;

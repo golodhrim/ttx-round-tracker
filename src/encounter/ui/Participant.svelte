@@ -2,7 +2,7 @@
     import { setIcon } from "obsidian";
     import type InitiativeTracker from "src/main";
     import { FRIENDLY, HIDDEN, RANDOM_HP, getRpgSystem } from "src/utils";
-    import type { Participant } from "src/utils/creature";
+    import type { Participant } from "src/utils/participant";
     import { getContext } from "svelte";
 
     const plugin = getContext<InitiativeTracker>("plugin");

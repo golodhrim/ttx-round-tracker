@@ -1,4 +1,4 @@
-import { Participant, getId } from "src/utils/creature";
+import { Participant, getId } from "src/utils/participant";
 import type InitiativeTracker from "../../main";
 import {
     derived,
@@ -10,7 +10,7 @@ import {
 import { equivalent } from "../../encounter";
 import { Events, Platform, TFile } from "obsidian";
 import type { UpdateLogMessage } from "src/logger/logger.types";
-import type { Condition } from "src/types/creatures";
+import type { Condition } from "src/types/participants";
 import type { InitiativeTrackerData } from "src/settings/settings.types";
 import type { InitiativeViewState } from "../view.types";
 import {

@@ -1,11 +1,11 @@
 <script lang="ts">
-    import type { SRDMonster } from "src/types/creatures";
+    import type { SRDMonster } from "src/types/participants";
     import { ExtraButtonComponent, setIcon } from "obsidian";
     import { getContext } from "svelte";
     import { encounter } from "../../stores/encounter";
     import Nullable from "../Nullable.svelte";
     import { convertFraction, DEFAULT_UNDEFINED } from "src/utils";
-    import { Participant as ParticipantCreator } from "src/utils/creature";
+    import { Participant as ParticipantCreator } from "src/utils/participant";
     import type { createTable } from "src/builder/stores/table/table";
     import type InitiativeTracker from "src/main";
 

@@ -17,7 +17,7 @@ import {
 import type InitiativeTracker from "../main";
 
 import App from "./ui/App.svelte";
-import type { Participant } from "../utils/creature";
+import type { Participant } from "../utils/participant";
 import { PLAYER_VIEW_VIEW } from "../utils/constants";
 import type PlayerView from "./player-view";
 

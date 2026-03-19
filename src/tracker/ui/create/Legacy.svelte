@@ -10,7 +10,7 @@
 
     import { DICE } from "src/utils";
     import { SRDMonsterSuggestionModal } from "src/utils/suggester";
-    import { Participant } from "src/utils/creature";
+    import { Participant } from "src/utils/participant";
     import type InitiativeTracker from "src/main";
 
     import { tracker } from "src/tracker/stores/tracker";

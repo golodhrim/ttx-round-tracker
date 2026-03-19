@@ -9,8 +9,8 @@
         RANDOM_HP,
         START_ENCOUNTER
     } from "src/utils";
-    import { Participant } from "src/utils/creature";
-    import CreatureComponent from "./Creature.svelte";
+    import { Participant } from "src/utils/participant";
+    import CreatureComponent from "./Participant.svelte";
     import type { StackRoller } from "@javalent/dice-roller";
     import { setContext } from "svelte";
 

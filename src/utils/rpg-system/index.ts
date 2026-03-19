@@ -1,5 +1,5 @@
-import type { Participant } from "../creature";
-import type { SRDMonster } from "src/types/creatures";
+import type { Participant } from "../participant";
+import type { SRDMonster } from "src/types/participants";
 import type InitiativeTracker from "../../main";
 import { Dnd5eRpgSystem } from "./dnd5e";
 import { Dnd5eLazySgmRpgSystem } from "./dnd5e-lazygm";

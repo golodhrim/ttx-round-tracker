@@ -4,7 +4,7 @@
     import type InitiativeTracker from "src/main";
     import { tracker } from "src/tracker/stores/tracker";
     import { START_ENCOUNTER } from "src/utils";
-    import { Participant } from "src/utils/creature";
+    import { Participant } from "src/utils/participant";
     import type { StackRoller } from "@javalent/dice-roller";
     import { setContext } from "svelte";
 

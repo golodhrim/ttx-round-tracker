@@ -6,7 +6,7 @@
     import { createEventDispatcher } from "svelte";
     import { SORT_NUMBER, SORT_STRING } from "src/utils";
     import { EditModal } from "./edit-modal";
-    import { getId } from "src/utils/creature";
+    import { getId } from "src/utils/participant";
     import {
         SortFunctions,
         type TableHeaderState

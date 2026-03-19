@@ -1,4 +1,4 @@
-import type { Condition } from "src/types/creatures";
+import type { Condition } from "src/types/participants";
 
 
 

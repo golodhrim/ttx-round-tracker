@@ -7,7 +7,7 @@
         REMOVE,
         TAG
     } from "src/utils";
-    import type { Participant } from "src/utils/creature";
+    import type { Participant } from "src/utils/participant";
     import type TrackerView from "src/tracker/view";
     import { createEventDispatcher, getContext } from "svelte";
     import type InitiativeTracker from "src/main";

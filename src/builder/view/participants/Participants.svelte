@@ -1,5 +1,5 @@
 <script lang="ts">
-    import Creature from "./Creature.svelte";
+    import Creature from "./Participant.svelte";
     import { getContext } from "svelte";
     import Filters from "../filters/Filters.svelte";
     import { Menu, Notice, setIcon } from "obsidian";

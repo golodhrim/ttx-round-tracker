@@ -1,6 +1,6 @@
 import { normalizePath, TFile } from "obsidian";
 import type InitiativeTracker from "../main";
-import type { Participant } from "../utils/creature";
+import type { Participant } from "../utils/participant";
 
 import { tracker } from "src/tracker/stores/tracker";
 import type { UpdateLogMessage } from "./logger.types";

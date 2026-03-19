@@ -2,7 +2,7 @@
     import type InitiativeTracker from "src/main";
     import { setContext } from "svelte";
     import Controls from "./Controls.svelte";
-    import Table from "./creatures/Table.svelte";
+    import Table from "./participants/Table.svelte";
     import Metadata from "./Metadata.svelte";
     import SaveEncounter from "./SaveEncounter.svelte";
     import LoadEncounter from "./LoadEncounter.svelte";
@@ -15,7 +15,7 @@
 
     import { AddCreatureModal } from "./create/modal";
     import Legacy from "./create/Legacy.svelte";
-    import type { Participant } from "src/utils/creature";
+    import type { Participant } from "src/utils/participant";
     import Difficulty from "./Difficulty.svelte";
 
     export let plugin: InitiativeTracker;

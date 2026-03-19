@@ -9,7 +9,7 @@
     import { onMount } from "svelte";
 
     import { DICE } from "src/utils";
-    import { Participant } from "src/utils/creature";
+    import { Participant } from "src/utils/participant";
     import type InitiativeTracker from "src/main";
     import type { Writable } from "svelte/store";
     import { equivalent } from "src/encounter";

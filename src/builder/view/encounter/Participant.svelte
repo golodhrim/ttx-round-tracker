@@ -1,11 +1,11 @@
 <script lang="ts">
-    import type { SRDMonster } from "src/types/creatures";
+    import type { SRDMonster } from "src/types/participants";
     import { ExtraButtonComponent, setIcon } from "obsidian";
     import { convertFraction, FRIENDLY, getRpgSystem, HIDDEN } from "src/utils";
     import { encounter } from "../../stores/encounter";
     import Nullable from "../Nullable.svelte";
     import { getContext } from "svelte";
-    import { Participant as ParticipantCreator } from "src/utils/creature";
+    import { Participant as ParticipantCreator } from "src/utils/participant";
 
     const { players } = encounter;
     const { average } = players;

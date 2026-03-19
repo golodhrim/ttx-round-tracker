@@ -4,7 +4,7 @@
     import { SyncLoader } from "svelte-loading-spinners";
 
     import { FRIENDLY, INITIATIVE } from "src/utils";
-    import type { Participant } from "src/utils/creature";
+    import type { Participant } from "src/utils/participant";
 
     import { tracker } from "../stores/tracker";
     const { state, ordered } = tracker;

@@ -1,6 +1,6 @@
 import { ItemView, WorkspaceLeaf } from "obsidian";
 import type InitiativeTracker from "src/main";
-import type { Participant } from "src/utils/creature";
+import type { Participant } from "src/utils/participant";
 import { PLAYER_VIEW_VIEW } from "../utils";
 
 import App from "./player/PlayerView.svelte";

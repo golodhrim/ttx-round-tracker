@@ -1,5 +1,5 @@
 import "obsidian";
-import type { HomebrewCreature } from "src/types/creatures";
+import type { HomebrewCreature } from "src/types/participants";
 
 declare module "obsidian" {
     interface App {

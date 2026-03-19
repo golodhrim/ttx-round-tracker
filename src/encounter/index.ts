@@ -1,6 +1,6 @@
 import { MarkdownRenderChild, Notice, parseYaml } from "obsidian";
 import type InitiativeTracker from "../main";
-import { Participant } from "../utils/creature";
+import { Participant } from "../utils/participant";
 
 import EncounterUI from "./ui/Encounter.svelte";
 import EncounterTable from "./ui/EncounterTable.svelte";

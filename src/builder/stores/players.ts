@@ -1,5 +1,5 @@
 import { derived, get, writable } from "svelte/store";
-import type { CreatureState } from "src/types/creatures";
+import type { CreatureState } from "src/types/participants";
 
 export const playerCount = writable(0);
 

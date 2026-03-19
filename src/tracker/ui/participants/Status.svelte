@@ -1,6 +1,6 @@
 <script lang="ts">
     import { ExtraButtonComponent, setIcon } from "obsidian";
-    import type { Condition } from "src/types/creatures";
+    import type { Condition } from "src/types/participants";
     import { createEventDispatcher } from "svelte";
     
     const dispatch = createEventDispatcher();

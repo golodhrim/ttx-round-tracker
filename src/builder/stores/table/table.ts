@@ -3,12 +3,12 @@ import {
     SortFunctions,
     type TableHeaderState
 } from "src/builder/builder.types";
-import { type SRDMonster } from "src/types/creatures";
+import { type SRDMonster } from "src/types/participants";
 import { convertFraction } from "../../../utils";
 import type InitiativeTracker from "../../../main";
 import { Modal } from "obsidian";
 import copy from "fast-copy";
-import { getId } from "../../../utils/creature";
+import { getId } from "../../../utils/participant";
 
 export const playerCount = writable(0);
 

@@ -1,9 +1,9 @@
 import copy from "fast-copy";
-import type { SRDMonster } from "src/types/creatures";
+import type { SRDMonster } from "src/types/participants";
 import { prepareSimpleSearch, type SearchResult } from "obsidian";
 import type InitiativeTracker from "src/main";
 import { convertFraction } from "src/utils";
-import { getId } from "src/utils/creature";
+import { getId } from "src/utils/participant";
 import {
     derived,
     get,

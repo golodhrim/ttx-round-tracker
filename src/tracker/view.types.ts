@@ -1,4 +1,4 @@
-import type { CreatureState, HomebrewCreature } from "src/types/creatures";
+import type { CreatureState, HomebrewCreature } from "src/types/participants";
 
 export interface InitiativeViewState {
     participants: CreatureState[];

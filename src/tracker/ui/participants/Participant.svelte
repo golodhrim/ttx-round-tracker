@@ -1,8 +1,8 @@
 <script lang="ts">
     import { FRIENDLY, HIDDEN } from "src/utils";
-    import type { Participant } from "src/utils/creature";
+    import type { Participant } from "src/utils/participant";
     import Initiative from "./Initiative.svelte";
-    import CreatureControls from "./CreatureControls.svelte";
+    import CreatureControls from "./ParticipantControls.svelte";
     import Status from "./Status.svelte";
     import { setIcon } from "obsidian";
     import { tracker } from "../../stores/tracker";
@@ -101,7 +101,7 @@
 </td>
 
 <td class="controls-container">
-    <CreatureControls
+    <ParticipantControls
         on:click={(e) => e.stopPropagation()}
         on:tag
         on:edit

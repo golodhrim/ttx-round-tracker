@@ -1,6 +1,6 @@
 import { App, ButtonComponent, Modal } from "obsidian";
 import type InitiativeTracker from "src/main";
-import type { Participant } from "src/utils/creature";
+import type { Participant } from "src/utils/participant";
 import Creator from "./Creator.svelte";
 export class AddCreatureModal extends Modal {
     constructor(public plugin: InitiativeTracker, public participant?: Participant) {

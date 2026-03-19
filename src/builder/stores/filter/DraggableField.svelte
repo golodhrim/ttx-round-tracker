@@ -1,6 +1,6 @@
 <script lang="ts">
     import { Setting } from "obsidian";
-    import { getId } from "src/utils/creature";
+    import { getId } from "src/utils/participant";
     import { createEventDispatcher } from "svelte";
     import { SHADOW_PLACEHOLDER_ITEM_ID, dndzone } from "svelte-dnd-action";
     import { flip } from "svelte/animate";

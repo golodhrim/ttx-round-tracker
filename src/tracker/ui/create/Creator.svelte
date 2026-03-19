@@ -2,7 +2,7 @@
     import { ButtonComponent, Platform, TFile } from "obsidian";
     import type InitiativeTracker from "src/main";
     import { tracker } from "src/tracker/stores/tracker";
-    import { Participant } from "src/utils/creature";
+    import { Participant } from "src/utils/participant";
     import { createEventDispatcher } from "svelte";
     import { writable } from "svelte/store";
     import Create from "./Create.svelte";

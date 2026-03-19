@@ -1,6 +1,6 @@
 <script lang="ts">
     import { createEventDispatcher } from "svelte";
-    import Thumb from "../../creatures/Thumb.svelte";
+    import Thumb from "../../participants/Thumb.svelte";
 
     const dispatch = createEventDispatcher();
 

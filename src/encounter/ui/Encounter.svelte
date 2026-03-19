@@ -2,11 +2,11 @@
     import { ExtraButtonComponent, setIcon } from "obsidian";
     import { getRpgSystem, DICE, RANDOM_HP, START_ENCOUNTER } from "src/utils";
 
-    import { Participant } from "src/utils/creature";
+    import { Participant } from "src/utils/participant";
     import type InitiativeTracker from "src/main";
     import { tracker } from "src/tracker/stores/tracker";
-    import type { CreatureState } from "src/types/creatures";
-    import CreatureComponent from "./Creature.svelte";
+    import type { CreatureState } from "src/types/participants";
+    import CreatureComponent from "./Participant.svelte";
     import { setContext } from "svelte";
     import type { StackRoller } from "@javalent/dice-roller";
 

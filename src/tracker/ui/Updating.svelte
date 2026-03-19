@@ -4,13 +4,13 @@
     import { REMOVE, TAG } from "src/utils";
     import { ConditionSuggestionModal } from "src/utils/suggester";
     import { getContext } from "svelte";
-    import { getId } from "src/utils/creature";
-    import Status from "src/tracker/ui/creatures/Status.svelte";
+    import { getId } from "src/utils/participant";
+    import Status from "src/tracker/ui/participants/Status.svelte";
 
     import { tracker } from "../stores/tracker";
     const { updating } = tracker;
     import { writable } from "svelte/store";
-    import type { Condition } from "src/types/creatures";
+    import type { Condition } from "src/types/participants";
 
     const plugin = getContext<InitiativeTracker>("plugin");
 

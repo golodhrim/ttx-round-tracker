@@ -26,8 +26,8 @@ import {
 } from "../utils";
 import type { Party } from "./settings.types";
 import type { InputValidate } from "./settings.types";
-import type { Condition } from "src/types/creatures";
-import type { HomebrewCreature } from "src/types/creatures";
+import type { Condition } from "src/types/participants";
+import type { HomebrewCreature } from "src/types/participants";
 
 export default class InitiativeTrackerSettings extends PluginSettingTab {
     constructor(private plugin: InitiativeTracker) {
@@ -1095,7 +1095,7 @@ class NewPlayerModal extends Modal {
 
 import { App, ButtonComponent, Modal } from "obsidian";
 import { tracker } from "src/tracker/stores/tracker";
-import { getId } from "src/utils/creature";
+import { getId } from "src/utils/participant";
 
 export async function confirmWithModal(
     app: App,

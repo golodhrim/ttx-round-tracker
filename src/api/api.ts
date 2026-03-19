@@ -1,8 +1,8 @@
 import type { InitiativeViewState } from "src/tracker/view.types";
 import type InitiativeTracker from "../main";
 import { tracker } from "../tracker/stores/tracker";
-import { type HomebrewCreature } from "src/types/creatures";
-import { Participant } from "src/utils/creature";
+import { type HomebrewCreature } from "src/types/participants";
+import { Participant } from "src/utils/participant";
 
 declare module "obsidian" {
     interface Workspace {
