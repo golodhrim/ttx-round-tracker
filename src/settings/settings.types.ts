@@ -1,7 +1,7 @@
 import type { InitiativeViewState } from "src/tracker/view.types";
 import type { RollPlayerInitiativeBehavior } from "src/utils";
 import type { Condition } from "src/types/participants";
-import type { HomebrewCreature } from "src/types/participants";
+import type { HomebrewParticipant } from "src/types/participants";
 import type { BuilderState } from "src/builder/builder.types";
 
 export interface InitiativeTrackerData {
@@ -18,7 +18,7 @@ export interface InitiativeTrackerData {
         player: boolean;
         builder: boolean;
     };
-    players: HomebrewCreature[];
+    players: HomebrewParticipant[];
     parties: Party[];
     defaultParty: string;
 

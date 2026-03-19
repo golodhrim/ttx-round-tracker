@@ -1,4 +1,4 @@
-export interface CreatureState extends HomebrewCreature {
+export interface ParticipantState extends HomebrewParticipant {
     status: string[];
     enabled: boolean;
     currentMaxHP: number;
@@ -12,7 +12,7 @@ export interface CreatureState extends HomebrewCreature {
     active: boolean;
     hit_dice: string;
 }
-export interface SRDMonster {
+export interface SRDCharacter {
     name: string;
     ac: number;
     hp: number;
@@ -21,12 +21,12 @@ export interface SRDMonster {
     monster?: string;
     friendly?: boolean;
     hidden?: boolean;
-    bestiary?: boolean;
+    library?: boolean;
     player?: boolean;
 
     [key: string]: any;
 }
-export interface HomebrewCreature {
+export interface HomebrewParticipant {
     name?: string;
     display?: string;
     hp?: number;

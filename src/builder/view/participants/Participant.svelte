@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { SRDMonster } from "src/types/participants";
+    import type { SRDCharacter } from "src/types/participants";
     import { ExtraButtonComponent, setIcon } from "obsidian";
     import { getContext } from "svelte";
     import { encounter } from "../../stores/encounter";
@@ -15,7 +15,7 @@
     const plugin = getContext<InitiativeTracker>("plugin");
     const table = getContext<ReturnType<typeof createTable>>("table");
 
-    export let creature: SRDMonster;
+    export let creature: SRDCharacter;
     const add = (node: HTMLElement) => {
         new ExtraButtonComponent(node).setIcon("plus-with-circle");
     };

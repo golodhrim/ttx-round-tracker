@@ -1,7 +1,7 @@
 import type { Condition } from "src/types/participants";
-import type { HomebrewCreature } from "src/types/participants";
-import type { SRDMonster } from "src/types/participants";
-import type { CreatureState } from "src/types/participants";
+import type { HomebrewParticipant } from "src/types/participants";
+import type { SRDCharacter } from "src/types/participants";
+import type { ParticipantState } from "src/types/participants";
 import { Conditions } from ".";
 import { DEFAULT_UNDEFINED } from "./constants";
 import type InitiativeTracker from "src/main";
@@ -67,7 +67,7 @@ export class Participant {
         this.status = new Set(
             [...this.status].filter((s) => s.id != condition.id)
         );    }
-    constructor(public participantData: HomebrewCreature, initiative: number = 0) {
+    constructor(public participantData: HomebrewParticipant, initiative: number = 0) {
         this.name = participantData.name;
         this.display = participantData.display;
         this.initiative =
@@ -175,7 +175,7 @@ export class Participant {
         );
     }
 
-    static from(participantData: HomebrewCreature | SRDMonster) {
+    static from(participantData: HomebrewParticipant | SRDCharacter) {
         const modifier =
             "modifier" in participantData
                 ? participantData.modifier
@@ -192,7 +192,7 @@ export class Participant {
         });
     }
 
-    update(participantData: HomebrewCreature) {
+    update(participantData: HomebrewParticipant) {
         this.name = participantData.name;
 
         this.setModifier(participantData.modifier);
@@ -215,7 +215,7 @@ export class Participant {
         return { ...this };
     }
 
-    toJSON(): CreatureState {
+    toJSON(): ParticipantState {
         return {
             name: this.name,
             display: this.display,
@@ -247,7 +247,7 @@ export class Participant {
         };
     }
 
-    static fromJSON(state: CreatureState, plugin: InitiativeTracker) {
+    static fromJSON(state: ParticipantState, plugin: InitiativeTracker) {
         let participant: Participant;
         if (state.player) {
             participant =

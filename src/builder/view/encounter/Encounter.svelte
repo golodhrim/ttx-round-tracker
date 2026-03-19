@@ -15,7 +15,7 @@
     import { START_ENCOUNTER } from "src/utils";
     import { getContext } from "svelte";
     import { tracker } from "src/tracker/stores/tracker";
-    import type { CreatureState, SRDMonster } from "src/types/participants";
+    import type { ParticipantState, SRDCharacter } from "src/types/participants";
     import { writable } from "svelte/store";
 
     const { players } = encounter;
@@ -50,7 +50,7 @@
 
                 const view = plugin.view;
                 const creatures: ParticipantCreator[] = [];
-                const transformedCreatures: CreatureState[] = [];
+                const transformedCreatures: ParticipantState[] = [];
                 for (const [srd, count] of items) {
                     const creature = ParticipantCreator.from(srd);
                     const amount = Math.max(
@@ -217,7 +217,7 @@
                                 ParticipantCreator.fromJSON(
                                     creature,
                                     plugin
-                                ) as any as SRDMonster
+                                ) as any as SRDCharacter
                             );
                         }
                     }

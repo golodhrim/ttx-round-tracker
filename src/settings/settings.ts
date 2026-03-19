@@ -27,7 +27,7 @@ import {
 import type { Party } from "./settings.types";
 import type { InputValidate } from "./settings.types";
 import type { Condition } from "src/types/participants";
-import type { HomebrewCreature } from "src/types/participants";
+import type { HomebrewParticipant } from "src/types/participants";
 
 export default class InitiativeTrackerSettings extends PluginSettingTab {
     constructor(private plugin: InitiativeTracker) {
@@ -840,7 +840,7 @@ export default class InitiativeTrackerSettings extends PluginSettingTab {
         const summary = containerEl.createEl("summary");
         new Setting(summary).setHeading().setName("Plugin Integrations");
         summary.createDiv("collapser").createDiv("handle");
-        if (!this.plugin.canUseStatBlocks) {
+        if (!this.plugin.canUseCharacterCards) {
             this.plugin.data.sync = false;
             await this.plugin.saveSettings();
         }
@@ -851,7 +851,7 @@ export default class InitiativeTrackerSettings extends PluginSettingTab {
                     e.createSpan({
                         text: "Homebrew characters saved to the Statblocks plugin will be available to use."
                     });
-                    if (!this.plugin.canUseStatBlocks) {
+                    if (!this.plugin.canUseCharacterCards) {
                         e.createEl("br");
                         e.createEl("br");
                         e.createSpan({
@@ -859,7 +859,7 @@ export default class InitiativeTrackerSettings extends PluginSettingTab {
                         });
                         e.createEl("a", {
                             text: "Fantasy Statblocks",
-                            href: "obsidian://show-plugin?id=obsidian-5e-statblocks"
+                            href: "obsidian://show-plugin?id=ttx-character-cards"
                         });
                         e.createSpan({
                             text: " plugin to use homebrew creatures."
@@ -868,7 +868,7 @@ export default class InitiativeTrackerSettings extends PluginSettingTab {
                 })
             )
             .addToggle((t) => {
-                t.setDisabled(!this.plugin.canUseStatBlocks).setValue(
+                t.setDisabled(!this.plugin.canUseCharacterCards).setValue(
                     this.plugin.data.sync
                 );
                 t.onChange(async (v) => {
@@ -879,7 +879,7 @@ export default class InitiativeTrackerSettings extends PluginSettingTab {
             });
         if (this.plugin.data.sync) {
             const synced = new Setting(containerEl).setDesc(
-                `${this.plugin.bestiary.length} creatures synced.`
+                `${this.plugin.library.length} creatures synced.`
             );
             synced.settingEl.addClass("initiative-synced");
             setIcon(synced.nameEl, "check-in-circle");
@@ -938,11 +938,11 @@ export default class InitiativeTrackerSettings extends PluginSettingTab {
 }
 
 class NewPlayerModal extends Modal {
-    player: HomebrewCreature;
+    player: HomebrewParticipant;
     saved: boolean;
     constructor(
         private plugin: InitiativeTracker,
-        private original: HomebrewCreature = {}
+        private original: HomebrewParticipant = {}
     ) {
         super(plugin.app);
         this.player = { ...(original ?? {}) };

@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { SRDMonster } from "src/types/participants";
+    import type { SRDCharacter } from "src/types/participants";
     import { ExtraButtonComponent, setIcon } from "obsidian";
     import { convertFraction, FRIENDLY, getRpgSystem, HIDDEN } from "src/utils";
     import { encounter } from "../../stores/encounter";
@@ -35,7 +35,7 @@
     };
 
     export let count: number;
-    export let creature: SRDMonster;
+    export let creature: SRDCharacter;
     $: insignificant =
         "cr" in creature &&
         creature.cr &&

@@ -46,7 +46,7 @@ export class EncounterSuggester extends EditorSuggest<string> {
                 );
                 break;
             case SuggestContext.Creatures:
-                suggestions = this.plugin.bestiaryNames;
+                suggestions = this.plugin.libraryNames;
                 break;
             case SuggestContext.Party:
                 suggestions = [

@@ -5,7 +5,7 @@ import { BUILDER_VIEW } from "../utils";
 import Builder from "./view/Builder.svelte";
 import { encounter } from "./stores/encounter";
 import { get } from "svelte/store";
-import type { SRDMonster } from "src/types/participants";
+import type { SRDCharacter } from "src/types/participants";
 
 interface BuilderContext {
     plugin: InitiativeTracker;
@@ -29,7 +29,7 @@ export default class BuilderView extends ItemView {
         return [...get(encounter).entries()];
     }
     async setState(
-        state: [SRDMonster, number][],
+        state: [SRDCharacter, number][],
         result: ViewStateResult
     ): Promise<void> {
         if (state && Array.isArray(state)) encounter.setMultiple(state);
@@ -38,14 +38,14 @@ export default class BuilderView extends ItemView {
     ui: Builder;
     async onOpen() {
         if (
-            this.plugin.canUseStatBlocks &&
-            !window["FantasyStatblocks"].isResolved()
+            this.plugin.canUseCharacterCards &&
+            !window["TTXCharacterCards"].isResolved()
         ) {
             this.contentEl.addClasses(["waiting-for-bestiary", "is-loading"]);
             const loading = this.contentEl.createEl("p", {
                 text: "Waiting for Fantasy Statblocks Bestiary..."
             });
-            const unload = window["FantasyStatblocks"].onResolved(() => {
+            const unload = window["TTXCharacterCards"].onResolved(() => {
                 this.contentEl.removeClasses([
                     "waiting-for-bestiary",
                     "is-loading"

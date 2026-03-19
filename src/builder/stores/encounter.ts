@@ -1,18 +1,18 @@
-import type { SRDMonster } from "src/types/participants";
+import type { SRDCharacter } from "src/types/participants";
 import { writable } from "svelte/store";
 import { players } from "./players";
 function createEncounter() {
-    const store = writable<Map<SRDMonster, number>>(new Map());
+    const store = writable<Map<SRDCharacter, number>>(new Map());
     const { subscribe, set, update } = store;
     return {
         players,
         subscribe,
-        add: (item: SRDMonster) =>
+        add: (item: SRDCharacter) =>
             update((monsters) => {
                 monsters.set(item, (monsters.get(item) ?? 0) + 1);
                 return monsters;
             }),
-        remove: (item: SRDMonster) =>
+        remove: (item: SRDCharacter) =>
             update((monsters) => {
                 let existing = monsters.get(item);
                 if (!existing) return monsters;
@@ -24,17 +24,17 @@ function createEncounter() {
                 }
                 return monsters; // this line is important to update the store value !!
             }),
-        delete: (item: SRDMonster) =>
+        delete: (item: SRDCharacter) =>
             update((monsters) => {
                 monsters.delete(item);
                 return monsters;
             }),
-        set: (item: SRDMonster, count: number) =>
+        set: (item: SRDCharacter, count: number) =>
             update((monsters) => {
                 monsters.set(item, count);
                 return monsters;
             }),
-        setMultiple: (creatures: [item: SRDMonster, count: number][]) =>
+        setMultiple: (creatures: [item: SRDCharacter, count: number][]) =>
             update((monsters) => {
                 for (const [item, count] of creatures) {
                     monsters.set(item, count);
@@ -42,7 +42,7 @@ function createEncounter() {
                 return monsters;
             }),
         empty: () => set(new Map()),
-        update: (creature: SRDMonster) =>
+        update: (creature: SRDCharacter) =>
             update((monsters) => {
                 monsters.set(creature, monsters.get(creature) ?? 1);
                 return monsters;

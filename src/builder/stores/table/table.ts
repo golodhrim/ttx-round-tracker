@@ -3,7 +3,7 @@ import {
     SortFunctions,
     type TableHeaderState
 } from "src/builder/builder.types";
-import { type SRDMonster } from "src/types/participants";
+import { type SRDCharacter } from "src/types/participants";
 import { convertFraction } from "../../../utils";
 import type InitiativeTracker from "../../../main";
 import { Modal } from "obsidian";
@@ -21,7 +21,7 @@ export class TableHeader {
         public type: SortFunctions,
         public func?: string
     ) {}
-    private _func: (a: SRDMonster, b: SRDMonster) => number =
+    private _func: (a: SRDCharacter, b: SRDCharacter) => number =
         this.getSortByType();
     private getSortByType() {
         switch (this.type) {
@@ -36,17 +36,17 @@ export class TableHeader {
             }
             case SortFunctions.CUSTOM: {
                 return new Function("a", "b", this.func!) as (
-                    a: SRDMonster,
-                    b: SRDMonster
+                    a: SRDCharacter,
+                    b: SRDCharacter
                 ) => number;
             }
         }
     }
 
-    public sortAsc(a: SRDMonster, b: SRDMonster) {
+    public sortAsc(a: SRDCharacter, b: SRDCharacter) {
         return this._func(a, b);
     }
-    public sortDesc(a: SRDMonster, b: SRDMonster) {
+    public sortDesc(a: SRDCharacter, b: SRDCharacter) {
         return this._func(b, a);
     }
 
@@ -101,7 +101,7 @@ export const NAME_HEADER = TableHeader.fromState({
 });
 
 export type BuiltTableStore = ReturnType<typeof createTable>;
-export function createTable(plugin: InitiativeTracker, monsters: SRDMonster[]) {
+export function createTable(plugin: InitiativeTracker, monsters: SRDCharacter[]) {
     if (!plugin.data.builder) {
         plugin.data.builder = {
             sidebarIcon: true,
@@ -118,7 +118,7 @@ export function createTable(plugin: InitiativeTracker, monsters: SRDMonster[]) {
         plugin.data.builder.headers.map((h) => TableHeader.fromState(h))
     );
     const { subscribe, set, update } = store;
-    const creatures = writable<SRDMonster[]>(copy(monsters));
+    const creatures = writable<SRDCharacter[]>(copy(monsters));
 
     let sortDir = writable(true); //true == asc, false == des
     const allHeaders = derived(store, (headers) => {

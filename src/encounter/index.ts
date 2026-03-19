@@ -309,7 +309,7 @@ export class EncounterParser {
             rollHP = false;
         }
         if (!name || typeof name != "string") return {};
-        let existing = this.plugin.getCreatureFromBestiary(name);
+        let existing = this.plugin.getParticipantFromLibrary(name);
         let creature = existing
             ? Participant.from(existing)
             : new Participant({ name });

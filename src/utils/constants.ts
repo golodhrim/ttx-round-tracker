@@ -4,7 +4,7 @@ import { Conditions } from "./conditions";
 
 export const INITIATIVE_TRACKER_VIEW = "initiative-tracker-view";
 export const PLAYER_VIEW_VIEW = "initiative-tracker-player-view";
-export const CREATURE_TRACKER_VIEW = "initiative-tracker-creature-view";
+export const PARTICIPANT_TRACKER_VIEW = "initiative-tracker-creature-view";
 export const TTX_CONSOLE_VIEW = "ttx-console-view";
 
 export const MIN_WIDTH_FOR_HAMBURGER = 300;

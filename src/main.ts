@@ -11,7 +11,7 @@ import {
 import {
     BUILDER_VIEW,
     Conditions,
-    CREATURE_TRACKER_VIEW,
+    PARTICIPANT_TRACKER_VIEW,
     DEFAULT_SETTINGS,
     INITIATIVE_TRACKER_VIEW,
     registerIcons
@@ -21,8 +21,8 @@ import { PLAYER_VIEW_VIEW, TTX_CONSOLE_VIEW } from "./utils/constants";
 import TTXConsoleView from "./console/console.view";
 import type { InitiativeTrackerData } from "./settings/settings.types";
 import type { InitiativeViewState } from "./tracker/view.types";
-import type { HomebrewCreature } from "./types/participants";
-import type { SRDMonster } from "./types/participants";
+import type { HomebrewParticipant } from "./types/participants";
+import type { SRDCharacter } from "./types/participants";
 import InitiativeTrackerSettings from "./settings/settings";
 import { EncounterBlock, EncounterParser } from "./encounter";
 import EncounterLine from "./encounter/ui/EncounterLine.svelte";
@@ -42,7 +42,7 @@ export default class InitiativeTracker extends Plugin {
     public data: InitiativeTrackerData;
     public tracker = tracker;
     playerCreatures: Map<string, Participant> = new Map();
-    watchers: Map<TFile, HomebrewCreature> = new Map();
+    watchers: Map<TFile, HomebrewParticipant> = new Map();
     getRoller(str: string) {
         if (!this.canUseDiceRoller) return;
         const roller = window.DiceRoller.getRoller(str, "statblock");
@@ -99,22 +99,22 @@ export default class InitiativeTracker extends Plugin {
         );
     }
 
-    get canUseStatBlocks(): boolean {
-        if (this.app.plugins.enabledPlugins.has("obsidian-5e-statblocks")) {
-            return (window["FantasyStatblocks"]?.getVersion()?.major ?? 0) >= 4;
+    get canUseCharacterCards(): boolean {
+        if (this.app.plugins.enabledPlugins.has("ttx-character-cards")) {
+            return (window["TTXCharacterCards"]?.getVersion()?.major ?? 0) >= 4;
         }
         return false;
     }
     get statblockVersion() {
-        return window.FantasyStatblocks?.getVersion() ?? { major: 0 };
+        return window.TTXCharacterCards?.getVersion() ?? { major: 0 };
     }
     get statblock_creatures() {
-        if (!window.FantasyStatblocks) return [];
-        return window.FantasyStatblocks.getBestiaryCreatures() as SRDMonster[];
+        if (!window.TTXCharacterCards) return [];
+        return window.TTXCharacterCards.getLibraryParticipants() as SRDCharacter[];
     }
-    get bestiary() {
+    get library() {
         return this.statblock_creatures.filter(
-            (p) => !p.player && p.bestiary !== false
+            (p) => !p.player && p.library !== false
         );
     }
 
@@ -154,9 +154,9 @@ export default class InitiativeTracker extends Plugin {
         }
     }
 
-    get bestiaryNames(): string[] {
-        if (!window.FantasyStatblocks) return [];
-        return window.FantasyStatblocks.getBestiaryNames();
+    get libraryNames(): string[] {
+        if (!window.TTXCharacterCards) return [];
+        return window.TTXCharacterCards.getLibraryNames();
     }
     get view() {
         const leaves = this.app.workspace.getLeavesOfType(
@@ -168,7 +168,7 @@ export default class InitiativeTracker extends Plugin {
     }
     get combatant() {
         const leaves = this.app.workspace.getLeavesOfType(
-            CREATURE_TRACKER_VIEW
+            PARTICIPANT_TRACKER_VIEW
         );
         const leaf = leaves?.length ? leaves[0] : null;
         if (leaf && leaf.view && leaf.view instanceof CreatureView)
@@ -179,32 +179,32 @@ export default class InitiativeTracker extends Plugin {
         return this.data.parties.find((p) => p.name == this.data.defaultParty);
     }
 
-    getBaseCreatureFromBestiary(name: string): SRDMonster {
+    getBaseCreatureFromBestiary(name: string): SRDCharacter {
         /** Check statblocks */
         try {
             if (
-                this.canUseStatBlocks &&
-                window.FantasyStatblocks.hasCreature(name)
+                this.canUseCharacterCards &&
+                window.TTXCharacterCards.hasParticipant(name)
             ) {
-                return window.FantasyStatblocks.getCreatureFromBestiary(
+                return window.TTXCharacterCards.getParticipantFromLibrary(
                     name
-                ) as SRDMonster;
+                ) as SRDCharacter;
             }
         } catch (e) {}
         return null;
     }
-    getCreatureFromBestiary(name: string) {
+    getParticipantFromLibrary(name: string) {
         let creature = this.getBaseCreatureFromBestiary(name);
         if (creature) return Participant.from(creature);
     }
-    getCreatureFromBestiaryByDefinition(
-        creature: SRDMonster | HomebrewCreature
+    getParticipantFromLibraryByDefinition(
+        creature: SRDCharacter | HomebrewParticipant
     ): Participant {
         if (creature.player && this.playerCreatures.has(creature.name)) {
             return this.playerCreatures.get(creature.name);
         }
         return (
-            this.getCreatureFromBestiary(creature.name) ??
+            this.getParticipantFromLibrary(creature.name) ??
             Participant.from(creature)
         );
     }
@@ -249,7 +249,7 @@ export default class InitiativeTracker extends Plugin {
             (leaf: WorkspaceLeaf) => new PlayerView(leaf, this)
         );
         this.registerView(
-            CREATURE_TRACKER_VIEW,
+            PARTICIPANT_TRACKER_VIEW,
             (leaf: WorkspaceLeaf) => new CreatureView(leaf, this)
         );
         this.registerView(
@@ -271,14 +271,14 @@ export default class InitiativeTracker extends Plugin {
         this.registerEditorSuggest(new EncounterSuggester(this));
         this.registerMarkdownCodeBlockProcessor("encounter", (src, el, ctx) => {
             if (
-                this.canUseStatBlocks &&
-                !window["FantasyStatblocks"].isResolved()
+                this.canUseCharacterCards &&
+                !window["TTXCharacterCards"].isResolved()
             ) {
                 el.addClasses(["waiting-for-bestiary", "is-loading"]);
                 const loading = el.createEl("p", {
                     text: "Waiting for Fantasy Statblocks Bestiary..."
                 });
-                const unload = window["FantasyStatblocks"].onResolved(() => {
+                const unload = window["TTXCharacterCards"].onResolved(() => {
                     el.removeClasses(["waiting-for-bestiary", "is-loading"]);
                     loading.detach();
                     const handler = new EncounterBlock(this, src, el);
@@ -294,14 +294,14 @@ export default class InitiativeTracker extends Plugin {
             "encounter-table",
             (src, el, ctx) => {
                 if (
-                    this.canUseStatBlocks &&
-                    !window["FantasyStatblocks"].isResolved()
+                    this.canUseCharacterCards &&
+                    !window["TTXCharacterCards"].isResolved()
                 ) {
                     el.addClasses(["waiting-for-bestiary", "is-loading"]);
                     const loading = el.createEl("p", {
                         text: "Waiting for Fantasy Statblocks Bestiary..."
                     });
-                    const unload = window["FantasyStatblocks"].onResolved(
+                    const unload = window["TTXCharacterCards"].onResolved(
                         () => {
                             el.removeClasses([
                                 "waiting-for-bestiary",
@@ -368,8 +368,8 @@ export default class InitiativeTracker extends Plugin {
                     });
                 };
                 if (
-                    this.canUseStatBlocks &&
-                    !window["FantasyStatblocks"].isResolved()
+                    this.canUseCharacterCards &&
+                    !window["TTXCharacterCards"].isResolved()
                 ) {
                     const loading = target.createSpan(
                         "waiting-for-bestiary inline"
@@ -388,7 +388,7 @@ export default class InitiativeTracker extends Plugin {
                     loading.createEl("em", {
                         text: "Loading Bestiary..."
                     });
-                    const unload = window["FantasyStatblocks"].onResolved(
+                    const unload = window["TTXCharacterCards"].onResolved(
                         () => {
                             el.removeClasses([
                                 "waiting-for-bestiary",
@@ -593,7 +593,7 @@ export default class InitiativeTracker extends Plugin {
         this.registerEvent(
             this.app.workspace.on(
                 "initiative-tracker:start-encounter",
-                async (homebrews: HomebrewCreature[]) => {
+                async (homebrews: HomebrewParticipant[]) => {
                     try {
                         const participants = homebrews.map((h) =>
                             Participant.from(h).toJSON()
@@ -662,7 +662,7 @@ export default class InitiativeTracker extends Plugin {
         });
         this.app.workspace.revealLeaf(this.builder.leaf);
     }
-    async updatePlayer(existing: HomebrewCreature, player: HomebrewCreature) {
+    async updatePlayer(existing: HomebrewParticipant, player: HomebrewParticipant) {
         if (!this.playerCreatures.has(existing.name)) {
             await this.savePlayer(player);
             return;
@@ -688,12 +688,12 @@ export default class InitiativeTracker extends Plugin {
         await this.saveSettings();
     }
 
-    async savePlayer(player: HomebrewCreature) {
+    async savePlayer(player: HomebrewParticipant) {
         this.data.players.push(player);
         this.playerCreatures.set(player.name, Participant.from(player));
         await this.saveSettings();
     }
-    async savePlayers(...players: HomebrewCreature[]) {
+    async savePlayers(...players: HomebrewParticipant[]) {
         for (let monster of players) {
             this.data.players.push(monster);
             this.playerCreatures.set(monster.name, Participant.from(monster));
@@ -701,7 +701,7 @@ export default class InitiativeTracker extends Plugin {
         await this.saveSettings();
     }
 
-    async deletePlayer(player: HomebrewCreature) {
+    async deletePlayer(player: HomebrewParticipant) {
         this.data.players = this.data.players.filter((p) => p != player);
         this.playerCreatures.delete(player.name);
         await this.saveSettings();
@@ -735,12 +735,12 @@ export default class InitiativeTracker extends Plugin {
         tracker.setData(this.data);
     }
     async openCombatant(creature: Participant) {
-        if (!this.canUseStatBlocks) return;
+        if (!this.canUseCharacterCards) return;
         const view = this.combatant;
         if (!view) {
             const leaf = this.app.workspace.getRightLeaf(true);
             await leaf.setViewState({
-                type: CREATURE_TRACKER_VIEW
+                type: PARTICIPANT_TRACKER_VIEW
             });
         }
 

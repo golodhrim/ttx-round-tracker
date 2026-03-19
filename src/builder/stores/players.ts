@@ -1,16 +1,16 @@
 import { derived, get, writable } from "svelte/store";
-import type { CreatureState } from "src/types/participants";
+import type { ParticipantState } from "src/types/participants";
 
 export const playerCount = writable(0);
 
-export interface Player extends Partial<CreatureState> {
+export interface Player extends Partial<ParticipantState> {
     level: number;
     name: string;
     isPlayer: true;
     enabled: boolean;
     count: number;
 }
-export interface GenericPlayer extends Partial<CreatureState> {
+export interface GenericPlayer extends Partial<ParticipantState> {
     level: number;
     isPlayer: false;
     enabled: boolean;
@@ -56,7 +56,7 @@ function createPlayers() {
                 players.push(item);
                 return players;
             }),
-        addFromState: (state: CreatureState) =>
+        addFromState: (state: ParticipantState) =>
             update((players) => {
                 const item = state as Player;
                 item.isPlayer = true;

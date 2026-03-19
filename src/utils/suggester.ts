@@ -1,26 +1,26 @@
 import type { FuzzyMatch } from "obsidian";
 import { FuzzyInputSuggest } from "obsidian-utilities";
 
-import type { HomebrewCreature } from "src/types/participants";
-import type { SRDMonster } from "src/types/participants";
+import type { HomebrewParticipant } from "src/types/participants";
+import type { SRDCharacter } from "src/types/participants";
 import type { Participant } from "./participant";
 
-export class SRDMonsterSuggestionModal extends FuzzyInputSuggest<
-    HomebrewCreature | SRDMonster
+export class SRDCharacterSuggestionModal extends FuzzyInputSuggest<
+    HomebrewParticipant | SRDCharacter
 > {
     renderNote(
         noteEL: HTMLElement,
-        result: FuzzyMatch<HomebrewCreature | SRDMonster>
+        result: FuzzyMatch<HomebrewParticipant | SRDCharacter>
     ): void {
         noteEL.setText([result.item.source].flat().join(", "));
     }
     renderTitle(
         titleEl: HTMLElement,
-        result: FuzzyMatch<HomebrewCreature | SRDMonster>
+        result: FuzzyMatch<HomebrewParticipant | SRDCharacter>
     ): void {
         this.renderMatches(titleEl, result.item.name, result.match.matches);
     }
-    getItemText(item: HomebrewCreature | SRDMonster) {
+    getItemText(item: HomebrewParticipant | SRDCharacter) {
         return item.name;
     }
 }

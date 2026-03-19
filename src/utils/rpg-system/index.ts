@@ -1,5 +1,5 @@
 import type { Participant } from "../participant";
-import type { SRDMonster } from "src/types/participants";
+import type { SRDCharacter } from "src/types/participants";
 import type InitiativeTracker from "../../main";
 import { Dnd5eRpgSystem } from "./dnd5e";
 import { Dnd5eLazySgmRpgSystem } from "./dnd5e-lazygm";
@@ -10,7 +10,7 @@ import { TtxRpgSystem } from "./ttx";
 import { RpgSystem } from "./rpgSystem";
 import { DEFAULT_UNDEFINED } from "../constants";
 
-export type GenericCreature = Participant | SRDMonster;
+export type GenericCreature = Participant | SRDCharacter;
 
 export type DifficultyLevel = {
   /** Name of the difficulty level, eg "trivial". Used to display the difficulty level in encounters. */

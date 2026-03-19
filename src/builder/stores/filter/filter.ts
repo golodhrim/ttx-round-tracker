@@ -1,5 +1,5 @@
 import copy from "fast-copy";
-import type { SRDMonster } from "src/types/participants";
+import type { SRDCharacter } from "src/types/participants";
 import { prepareSimpleSearch, type SearchResult } from "obsidian";
 import type InitiativeTracker from "src/main";
 import { convertFraction } from "src/utils";
@@ -181,7 +181,7 @@ function getFilterStore(filter: Filter) {
 export type BuiltFilterStore = ReturnType<typeof createFilterStore>;
 
 function getDerivedFilterOptions(
-    creatures: SRDMonster[],
+    creatures: SRDCharacter[],
     filters: Filter[]
 ): Map<Filter, Set<any>> {
     const options = new Map(filters.map((f) => [f, new Set()]));
@@ -242,7 +242,7 @@ function getDerivedFilterOptions(
 }
 
 export function createFilterStore(
-    creatures: Writable<SRDMonster[]>,
+    creatures: Writable<SRDCharacter[]>,
     plugin: InitiativeTracker
 ) {
     const buildAndSubscribe = (filter: Filter) => {
@@ -301,7 +301,7 @@ export function createFilterStore(
         buildAndSubscribe(filter);
     }
     const filtered = derived([creatures, filters$], ([creatures, filters$]) => {
-        const filtered: SRDMonster[] = [];
+        const filtered: SRDCharacter[] = [];
         const filters = Array.from(filters$.values());
         for (const creature of creatures) {
             if (

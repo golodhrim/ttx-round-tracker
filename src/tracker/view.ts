@@ -10,7 +10,7 @@ import {
 import {
     BASE,
     CREATURE,
-    CREATURE_TRACKER_VIEW,
+    PARTICIPANT_TRACKER_VIEW,
     INITIATIVE_TRACKER_VIEW
 } from "../utils";
 
@@ -140,11 +140,11 @@ export class CreatureView extends ItemView {
         if (
             participant["statblock-link"] &&
             (this.plugin.data.preferStatblockLink ||
-                !this.plugin.canUseStatBlocks)
+                !this.plugin.canUseCharacterCards)
         ) {
             await this.renderEmbed(participant.getStatblockLink());
-        } else if (this.plugin.canUseStatBlocks) {
-            const statblock = window.FantasyStatblocks.render(
+        } else if (this.plugin.canUseCharacterCards) {
+            const statblock = window.TTXCharacterCards.render(
                 participant.participantData,
                 this.statblockEl,
                 participant.display
@@ -159,10 +159,10 @@ export class CreatureView extends ItemView {
 
     async renderEmbed(embedLink: string) {
         if (
-            this.plugin.canUseStatBlocks &&
-            window.FantasyStatblocks.isStatblockLink?.(embedLink)
+            this.plugin.canUseCharacterCards &&
+            window.TTXCharacterCards.isStatblockLink?.(embedLink)
         ) {
-            embedLink = window.FantasyStatblocks.parseStatblockLink(embedLink);
+            embedLink = window.TTXCharacterCards.parseStatblockLink(embedLink);
         }
         if (/\[.+\]\(.+\)/.test(embedLink)) {
             //md
@@ -209,6 +209,6 @@ export class CreatureView extends ItemView {
         return CREATURE;
     }
     getViewType(): string {
-        return CREATURE_TRACKER_VIEW;
+        return PARTICIPANT_TRACKER_VIEW;
     }
 }

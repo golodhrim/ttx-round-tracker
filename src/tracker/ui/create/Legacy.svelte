@@ -9,7 +9,7 @@
     import { createEventDispatcher, onDestroy, onMount } from "svelte";
 
     import { DICE } from "src/utils";
-    import { SRDMonsterSuggestionModal } from "src/utils/suggester";
+    import { SRDCharacterSuggestionModal } from "src/utils/suggester";
     import { Participant } from "src/utils/participant";
     import type InitiativeTracker from "src/main";
 
@@ -71,9 +71,9 @@
             });
     };
     let nameInput: HTMLInputElement;
-    let modal: SRDMonsterSuggestionModal;
+    let modal: SRDCharacterSuggestionModal;
     onMount(() => {
-        modal = new SRDMonsterSuggestionModal(plugin, nameInput);
+        modal = new SRDCharacterSuggestionModal(plugin, nameInput);
         modal.onClose = async () => {
             if (modal.creature) {
                 creature = Participant.from(modal.creature);

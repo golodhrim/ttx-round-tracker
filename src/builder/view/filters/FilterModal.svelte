@@ -4,7 +4,7 @@
     import { sources } from "../../stores/filter/filter";
 
     export let plugin: InitiativeTracker;
-    const allSources = [...new Set(plugin.bestiary.map((c) => c.source).flat())]
+    const allSources = [...new Set(plugin.library.map((c) => c.source).flat())]
         .filter((s) => s)
         .sort();
     const all = (node: HTMLElement) => {

@@ -13,7 +13,7 @@
     import { type BuiltTableStore, createTable } from "../stores/table/table";
 
     export let plugin: InitiativeTracker;
-    let original = plugin.bestiary;
+    let original = plugin.library;
     const table = createTable(plugin, [...original]);
 
     setContext<BuiltTableStore>("table", table);
