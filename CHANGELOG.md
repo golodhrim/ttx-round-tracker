@@ -2,6 +2,31 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.1.0](https://github.com/golodhrim/ttx-round-tracker/compare/v1.0.0...v1.1.0) (2026-03-19)
+
+
+### Features
+
+* **console:** add dice roller and D20 outcome resolution with tests ([fddd809](https://github.com/golodhrim/ttx-round-tracker/commit/fddd8094a08be9c5aabc06e8f0b170e30e4a2103))
+* **console:** add player action form with bonus checkboxes, delegation picker, session log tab ([1d677fd](https://github.com/golodhrim/ttx-round-tracker/commit/1d677fd93be01032cb3c79fba7c6e78013915764))
+* **console:** add session log writer with formatted round blocks ([315949b](https://github.com/golodhrim/ttx-round-tracker/commit/315949b1a8c3f8b53f2d055209d7db041262a4d3))
+* **console:** add session setup and resume screens ([b8f4104](https://github.com/golodhrim/ttx-round-tracker/commit/b8f41046e962e773542a9e7c3ec60f5a01a73e66))
+* **console:** add session store and IO helpers (action files, character reader) ([cda2711](https://github.com/golodhrim/ttx-round-tracker/commit/cda27114c2ebb66bd78658773aba23e142311205))
+* **console:** add SGM console with four-phase round flow and automated rolling ([f3176d4](https://github.com/golodhrim/ttx-round-tracker/commit/f3176d4cb7eea04186ba41c4c12a841ed5887ec5))
+* **console:** add TTX Console settings (SGM mode, sessions folder) ([68020a4](https://github.com/golodhrim/ttx-round-tracker/commit/68020a44c93e530cf315c297837caa3765fe6b7a))
+* **console:** add TTX console TypeScript types ([381d369](https://github.com/golodhrim/ttx-round-tracker/commit/381d3692bb2c4babaa902ecf267945cd90ed5c69))
+* **console:** add TTX console view constant and settings fields ([678a97f](https://github.com/golodhrim/ttx-round-tracker/commit/678a97facbed4750be08ada85c279446268fddbd))
+* **console:** complete TTX console build — all chunks implemented ([78702aa](https://github.com/golodhrim/ttx-round-tracker/commit/78702aa443d430471e0da72ce188ab17d9cb5ea2))
+* **console:** register TTX console view and ribbon icon ([4feaa0c](https://github.com/golodhrim/ttx-round-tracker/commit/4feaa0c14accd417c454cc7a073568decd637f0a))
+* player participant picker, character card render, SGM mode gating ([199a961](https://github.com/golodhrim/ttx-round-tracker/commit/199a961c9c5b6964e78aa7617ad34e6ebb58494b))
+
+
+### Bug Fixes
+
+* character loading and svelte build warnings ([df9a37d](https://github.com/golodhrim/ttx-round-tracker/commit/df9a37dadaf6d9c57ff17348fac3899e95c16c83))
+* rename Character Viewer pane display text and icon ([52e5b4b](https://github.com/golodhrim/ttx-round-tracker/commit/52e5b4bce12c961a46c684d08ed79fd9b4dea559))
+* TTX-align settings — rename plugin refs, fix sync count, remove D&D concepts ([202f551](https://github.com/golodhrim/ttx-round-tracker/commit/202f551ef4ea4adc3fed7596dedac3a8bef829b5))
+
 ## [13.0.18](https://github.com/javalent/initiative-tracker/compare/13.0.17...13.0.18) (2025-08-17)
 
 
