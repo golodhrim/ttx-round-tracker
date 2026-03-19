@@ -99,9 +99,6 @@
 {#if $updating.size}
     <div class="updating-container">
         <div class="status-row">
-            {#if plugin.data.beginnerTips}
-                <small class="label">Apply status effect to selected participants</small>
-            {/if}
             <div class="input-status">
                 <div class="input">
                     <div

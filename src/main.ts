@@ -101,7 +101,7 @@ export default class InitiativeTracker extends Plugin {
 
     get canUseCharacterCards(): boolean {
         if (this.app.plugins.enabledPlugins.has("ttx-character-cards")) {
-            return (window["TTXCharacterCards"]?.getVersion()?.major ?? 0) >= 4;
+            return (window["TTXCharacterCards"]?.getVersion()?.major ?? 0) >= 1;
         }
         return false;
     }

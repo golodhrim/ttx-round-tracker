@@ -43,6 +43,7 @@ export default class InitiativeTrackerSettings extends PluginSettingTab {
             containerEl.createEl("h2", { text: "Initiative Tracker Settings" });
 
             this._displayBase(containerEl.createDiv());
+            this._displayTTXConsole(containerEl.createDiv());
             if (!this.plugin.data.openState) {
                 this.plugin.data.openState = {
                     battle: true,
@@ -53,46 +54,6 @@ export default class InitiativeTrackerSettings extends PluginSettingTab {
                     builder: true
                 };
             }
-            this._displayBattle(
-                containerEl.createEl("details", {
-                    cls: "initiative-tracker-additional-container",
-                    attr: {
-                        ...(this.plugin.data.openState.player
-                            ? { open: true }
-                            : {})
-                    }
-                })
-            );
-            this._displayPlayers(
-                containerEl.createEl("details", {
-                    cls: "initiative-tracker-additional-container",
-                    attr: {
-                        ...(this.plugin.data.openState.player
-                            ? { open: true }
-                            : {})
-                    }
-                })
-            );
-            this._displayParties(
-                containerEl.createEl("details", {
-                    cls: "initiative-tracker-additional-container",
-                    attr: {
-                        ...(this.plugin.data.openState.party
-                            ? { open: true }
-                            : {})
-                    }
-                })
-            );
-            this._displayBuilder(
-                containerEl.createEl("details", {
-                    cls: "initiative-tracker-additional-container",
-                    attr: {
-                        ...(this.plugin.data.openState.builder
-                            ? { open: true }
-                            : {})
-                    }
-                })
-            );
             this._displayStatuses(
                 containerEl.createEl("details", {
                     cls: "initiative-tracker-additional-container",
@@ -114,41 +75,6 @@ export default class InitiativeTrackerSettings extends PluginSettingTab {
                 })
             );
 
-            // TTX Console section
-            const ttxContainer = containerEl.createEl("details", {
-                cls: "initiative-tracker-additional-container"
-            });
-            new Setting(ttxContainer.createEl("summary"))
-                .setHeading()
-                .setName("TTX Console");
-            ttxContainer.createDiv("collapser").createDiv("handle");
-
-            new Setting(ttxContainer)
-                .setName("SGM Mode")
-                .setDesc(
-                    "Enable on the Scenario Game Master's device. Shows the full console with DC input, roll controls, and finalize. Disable on player devices."
-                )
-                .addToggle((t) => {
-                    t.setValue(this.plugin.data.ttxConsoleSGM).onChange(async (v) => {
-                        this.plugin.data.ttxConsoleSGM = v;
-                        await this.plugin.saveSettings();
-                    });
-                });
-
-            new Setting(ttxContainer)
-                .setName("Sessions Folder")
-                .setDesc(
-                    "Base folder where session config files are stored. Default: 04 Sessions"
-                )
-                .addText((t) => {
-                    t.setValue(this.plugin.data.ttxConsoleSessionsPath).onChange(
-                        async (v) => {
-                            this.plugin.data.ttxConsoleSessionsPath = v;
-                            await this.plugin.saveSettings();
-                        }
-                    );
-                });
-
             const div = containerEl.createDiv("coffee");
             div.createEl("a", {
                 href: "https://buymeacoffee.com/golodhrim"
@@ -165,22 +91,36 @@ export default class InitiativeTrackerSettings extends PluginSettingTab {
         }
     }
 
-    private _displayBase(containerEl: HTMLDivElement) {
+    private _displayTTXConsole(containerEl: HTMLDivElement) {
         containerEl.empty();
-        new Setting(containerEl).setHeading().setName("Basic Settings");
+        new Setting(containerEl).setHeading().setName("TTX Console");
         new Setting(containerEl)
-            .setName("Display Beginner Tips")
+            .setName("SGM Mode")
             .setDesc(
-                "Display instructions in the initiative tracker, helping you get used to the workflow."
+                "Enable on the Scenario Game Master's device. Disable on player devices."
             )
             .addToggle((t) => {
-                t.setValue(this.plugin.data.beginnerTips).onChange(
+                t.setValue(this.plugin.data.ttxConsoleSGM).onChange(async (v) => {
+                    this.plugin.data.ttxConsoleSGM = v;
+                    await this.plugin.saveSettings();
+                });
+            });
+        new Setting(containerEl)
+            .setName("Sessions Folder")
+            .setDesc("Base folder where session config files are stored.")
+            .addText((t) => {
+                t.setValue(this.plugin.data.ttxConsoleSessionsPath).onChange(
                     async (v) => {
-                        this.plugin.data.beginnerTips = v;
+                        this.plugin.data.ttxConsoleSessionsPath = v;
                         await this.plugin.saveSettings();
                     }
                 );
             });
+    }
+
+    private _displayBase(containerEl: HTMLDivElement) {
+        containerEl.empty();
+        new Setting(containerEl).setHeading().setName("Basic Settings");
         new Setting(containerEl)
             .setName("Roll Equivalent Participants Together")
             .setDesc(
@@ -411,7 +351,7 @@ export default class InitiativeTrackerSettings extends PluginSettingTab {
                 const icons = playerDiv.createDiv({
                     cls: "initiative-tracker-player-icon imported",
                     attr: {
-                        "aria-label": "Imported from Fantasy Statblocks"
+                        "aria-label": "Imported from TTX Character Cards"
                     }
                 });
                 setIcon(icons, "heart-handshake");
@@ -675,9 +615,9 @@ export default class InitiativeTrackerSettings extends PluginSettingTab {
         new Setting(summary).setHeading().setName("Statuses");
 
         new Setting(additionalContainer)
-            .setName("Unconscious Status")
+            .setName("Critical Failure Status")
             .setDesc(
-                "Choose a different status to be used as the default Unconscious status."
+                "Choose which status is applied when a participant rolls a Critical Failure."
             )
             .addDropdown((d) => {
                 for (const status of this.plugin.data.statuses) {
@@ -823,7 +763,7 @@ export default class InitiativeTrackerSettings extends PluginSettingTab {
                                 (s) => s.name != status.name
                             );
                         if (this.plugin.data.unconsciousId == status.id) {
-                            this.plugin.data.unconsciousId = "Unconscious";
+                            this.plugin.data.unconsciousId = "crit-failure";
                         }
                         await this.plugin.saveSettings();
                         this._displayStatuses(additionalContainer);
@@ -845,11 +785,11 @@ export default class InitiativeTrackerSettings extends PluginSettingTab {
             await this.plugin.saveSettings();
         }
         new Setting(containerEl)
-            .setName("Sync Characters from Statblocks Plugin")
+            .setName("Sync Characters from TTX Character Cards Plugin")
             .setDesc(
                 createFragment((e) => {
                     e.createSpan({
-                        text: "Homebrew characters saved to the Statblocks plugin will be available to use."
+                        text: "Characters saved to the TTX Character Cards plugin will be available to use."
                     });
                     if (!this.plugin.canUseCharacterCards) {
                         e.createEl("br");
@@ -858,11 +798,11 @@ export default class InitiativeTrackerSettings extends PluginSettingTab {
                             text: "Install and enable the "
                         });
                         e.createEl("a", {
-                            text: "Fantasy Statblocks",
+                            text: "TTX Character Cards",
                             href: "obsidian://show-plugin?id=ttx-character-cards"
                         });
                         e.createSpan({
-                            text: " plugin to use homebrew creatures."
+                            text: " plugin to use character cards."
                         });
                     }
                 })
@@ -879,7 +819,7 @@ export default class InitiativeTrackerSettings extends PluginSettingTab {
             });
         if (this.plugin.data.sync) {
             const synced = new Setting(containerEl).setDesc(
-                `${this.plugin.library.length} creatures synced.`
+                `${this.plugin.statblock_players.length} characters synced.`
             );
             synced.settingEl.addClass("initiative-synced");
             setIcon(synced.nameEl, "check-in-circle");
@@ -1218,7 +1158,7 @@ class StatusModal extends Modal {
         new Setting(this.contentEl)
             .setName("Remove Each Round")
             .setDesc(
-                "This status will be removed from all creatures at the start of a new round."
+                "This status will be removed from all participants at the start of a new round."
             )
             .addToggle((t) =>
                 t
